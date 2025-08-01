@@ -4,7 +4,7 @@ from road import Road
 
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)  
-road = Road()
+road = Road(WIDTH, HEIGHT)
 pygame.display.set_caption("2D Car Game")
 clock = pygame.time.Clock()
 
@@ -24,7 +24,7 @@ while running:
         elif i.type == pygame.VIDEORESIZE:
             WIDTH, HEIGHT = i.size
             screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
-            
+            road.set_size(WIDTH, HEIGHT)
             
     pygame.display.flip()
 pygame.quit()
