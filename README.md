@@ -17,16 +17,22 @@ A fun and simple 2D car dodging game built using Python and Pygame.
 ```bash 
 git clone "https://github.com/TahmidMuntaser/2D-Car-Game.git"
 cd 2D-Car-Game
+```
 
 ### 2. (Optional) Create a Virtual Environment:
+```bash
 python -m venv venv
 # Activate it
 venv\Scripts\activate     # Windows
+```
 
 ### 3. Install Dependencies:
+```bash
 pip install -r requirements.txt
+```
 
 ### 4. Run the Game:
+```bash
 python main.py
 ```
 
