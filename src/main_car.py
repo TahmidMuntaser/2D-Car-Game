@@ -5,7 +5,7 @@ from config import WIDTH, HEIGHT
 class MainCar:
     """Main player car class with image loading and movement controls"""
     
-    def __init__(self, x, y, car_number=1):
+    def __init__(self, x, y, car_number=5):
         """
         Initialize the main player car
         Args:
@@ -15,8 +15,8 @@ class MainCar:
         """
         self.x = x
         self.y = y
-        self.car_number = car_number
-        self.speed = 3
+        self.car_number = 2
+        self.speed = 5
         
         # Screen boundaries (will be updated by the game)
         self.screen_width = WIDTH
@@ -102,7 +102,7 @@ class MainCar:
             car_width = int(road_width * 0.3)  # 30% of road width (wider than before)
 
             # Ensure reasonable size limits
-            car_width = max(90, min(car_width, 200))  # Between 90-150 pixels (wider range)
+            car_width = max(70, min(car_width, 200))  # Between 70-200 pixels (wider range)
             car_height = int(car_width * 1.3)  # Height is 1.3x width (better car proportions)
             
             self.image = pygame.transform.scale(cleaned_surface, (car_width, car_height))

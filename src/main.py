@@ -28,6 +28,18 @@ while running:
             screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
             road.set_size(WIDTH, HEIGHT)
             car.update_screen_size(WIDTH, HEIGHT)  # Update car boundaries
+        elif i.type == pygame.KEYDOWN:
+            # Change car model with number keys
+            if i.key == pygame.K_1:
+                car.change_car(1)
+            elif i.key == pygame.K_2:
+                car.change_car(2)
+            elif i.key == pygame.K_3:
+                car.change_car(3)
+            elif i.key == pygame.K_4:
+                car.change_car(4)
+            elif i.key == pygame.K_5:
+                car.change_car(5)
     
     # Handle car input
     keys = pygame.key.get_pressed()
