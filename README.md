@@ -35,5 +35,7 @@ pip install -r requirements.txt
 ```bash
 python src/main.py
 ```
+**Or simply:**
+- Double click `run_game.bat`
 
 
