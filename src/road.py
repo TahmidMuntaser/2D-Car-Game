@@ -1,9 +1,13 @@
 import pygame
+import os
 from config import HEIGHT, WIDTH
 
 class Road:
     def __init__(self, width , height):
-        self.original_image = pygame.image.load("assets/road1.png")
+        # Get the correct path to the assets folder
+        current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        assets_path = os.path.join(current_dir, "assets", "road1.png")
+        self.original_image = pygame.image.load(assets_path)
         self.set_size(width, height)
         self.y1 = 0
         self.y2 = -height
@@ -15,6 +19,14 @@ class Road:
         self.image = pygame.transform.scale(self.original_image, (width, height)) 
         self.y1 = 0
         self.y2 = -height
+    
+    def get_road_borders(self):
+        """Calculate responsive road borders based on screen width"""
+        border_percentage = 0.1  # 10% of screen width for borders
+        border_size = int(self.width * border_percentage)
+        # Ensure minimum and maximum border sizes
+        border_size = max(30, min(border_size, 80))
+        return border_size
 
     def move(self):
         self.y1 += self.speed
