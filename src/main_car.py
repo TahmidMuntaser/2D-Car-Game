@@ -5,7 +5,7 @@ from config import WIDTH, HEIGHT
 class MainCar:
     """Main player car class with image loading and movement controls"""
     
-    def __init__(self, x, y, car_number=1):
+    def __init__(self, x, y, car_number=5):
         """
         Initialize the main player car
         Args:
@@ -16,12 +16,12 @@ class MainCar:
         self.x = x
         self.y = y
         self.car_number = car_number
-        self.speed = 3
+        self.speed = 5
         
         # Screen boundaries (will be updated by the game)
-        self.screen_width = WIDTH
-        self.screen_height = HEIGHT
-        
+        self.screen_width = pygame.display.get_surface().get_width() if pygame.display.get_surface() else WIDTH
+        self.screen_height = pygame.display.get_surface().get_height() if pygame.display.get_surface() else HEIGHT
+
         # Calculate responsive road boundaries based on screen width
         self.update_road_boundaries()
         
@@ -43,10 +43,6 @@ class MainCar:
         border_percentage = 0.1  # 10% of screen width for borders
         self.road_left_border = int(self.screen_width * border_percentage)
         self.road_right_border = int(self.screen_width * border_percentage)
-        
-        # Ensure minimum and maximum border sizes
-        self.road_left_border = max(30, min(self.road_left_border, 80))
-        self.road_right_border = max(30, min(self.road_right_border, 80))
     
     def load_car_image(self):
         """Load the car image from assets folder and remove white background"""
@@ -57,7 +53,7 @@ class MainCar:
             
             # Load the original image
             original = pygame.image.load(assets_path).convert_alpha()
-            print(f"Original image size: {original.get_size()}")
+            # print(f"Original image size: {original.get_size()}")
             
             # Try multiple methods to remove background
             # Method 1: Aggressive pixel-by-pixel removal
@@ -99,10 +95,10 @@ class MainCar:
             # Make car wider for better visibility and gameplay
             # Car should be about 18-20% of road width for good proportions
             road_width = self.screen_width - (2 * int(self.screen_width * 0.1))  # Total road width
-            car_width = int(road_width * 0.3)  # 30% of road width (wider than before)
+            car_width = int(road_width * 0.25)  # 25% of road width (wider than before)
 
             # Ensure reasonable size limits
-            car_width = max(90, min(car_width, 200))  # Between 90-150 pixels (wider range)
+            car_width = max(60, min(car_width, 300))  # Between 60-300 pixels (wider range)
             car_height = int(car_width * 1.3)  # Height is 1.3x width (better car proportions)
             
             self.image = pygame.transform.scale(cleaned_surface, (car_width, car_height))
@@ -121,6 +117,11 @@ class MainCar:
             self.image = None
             self.fallback_color = (255, 0, 0)  # Red color as fallback for debugging
     
+    @staticmethod
+    def get_default_car_height():
+        """Get default car height for initial positioning"""
+        return 130  # Default car height
+
     def move_left(self):
         """Move car left with road boundary checking"""
         # Road has borders, so we need to stay within the road area
@@ -182,9 +183,9 @@ class MainCar:
     
     def handle_input(self, keys):
         """Handle keyboard input for car movement"""
-        # Reset movement flags
-        self.moving_left = False
-        self.moving_right = False
+        # # Reset movement flags
+        # self.moving_left = False
+        # self.moving_right = False
         
         # Check for key presses and move accordingly
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
@@ -237,7 +238,7 @@ class MainCar:
     
     def change_car(self, car_number):
         """Change to a different car model"""
-        if 1 <= car_number <= 5:
+        if 3 <= car_number <= 5:
             self.car_number = car_number
             self.load_car_image()
             print(f"Changed to car{car_number}.png")
@@ -252,65 +253,65 @@ class MainCar:
         }
 
 
-def test_main_car():
-    """Test function to demonstrate the MainCar class"""
-    pygame.init()
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("Main Car Test")
-    clock = pygame.time.Clock()
+# def test_main_car():
+#     """Test function to demonstrate the MainCar class"""
+#     pygame.init()
+#     screen = pygame.display.set_mode((WIDTH, HEIGHT))
+#     pygame.display.set_caption("Main Car Test")
+#     clock = pygame.time.Clock()
     
-    # Create main car at bottom center
-    car = MainCar(WIDTH // 2 - 40, HEIGHT - 150, car_number=1)
+#     # Create main car at bottom center
+#     car = MainCar(WIDTH // 2 - 40, HEIGHT - 150, car_number=1)
     
-    # Game loop
-    running = True
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            elif event.type == pygame.KEYDOWN:
-                # Change car model with number keys
-                if event.key == pygame.K_1:
-                    car.change_car(1)
-                elif event.key == pygame.K_2:
-                    car.change_car(2)
-                elif event.key == pygame.K_3:
-                    car.change_car(3)
-                elif event.key == pygame.K_4:
-                    car.change_car(4)
-                elif event.key == pygame.K_5:
-                    car.change_car(5)
+#     # Game loop
+#     running = True
+#     while running:
+        # for event in pygame.event.get():
+        #     if event.type == pygame.QUIT:
+        #         running = False
+        #     elif event.type == pygame.KEYDOWN:
+        #         # Change car model with number keys
+        #         if event.key == pygame.K_1:
+        #             car.change_car(1)
+        #         elif event.key == pygame.K_2:
+        #             car.change_car(2)
+        #         elif event.key == pygame.K_3:
+        #             car.change_car(3)
+        #         elif event.key == pygame.K_4:
+        #             car.change_car(4)
+        #         elif event.key == pygame.K_5:
+        #             car.change_car(5)
         
-        # Handle continuous key presses
-        keys = pygame.key.get_pressed()
-        car.handle_input(keys)
+    #     # Handle continuous key presses
+    #     keys = pygame.key.get_pressed()
+    #     car.handle_input(keys)
         
-        # Update
-        car.update_position()
+    #     # Update
+    #     car.update_position()
         
-        # Draw
-        screen.fill((50, 50, 50))  # Dark gray background
-        car.draw(screen)
+    #     # Draw
+    #     screen.fill((50, 50, 50))  # Dark gray background
+    #     car.draw(screen)
         
-        # Draw instructions
-        font = pygame.font.Font(None, 24)
-        instructions = [
-            "Use ARROW KEYS or WASD to move",
-            "Press 1-5 to change car model",
-            f"Current car: car{car.car_number}.png",
-            f"Position: {car.get_center()}"
-        ]
+    #     # Draw instructions
+    #     font = pygame.font.Font(None, 24)
+    #     instructions = [
+    #         "Use ARROW KEYS or WASD to move",
+    #         "Press 1-5 to change car model",
+    #         f"Current car: car{car.car_number}.png",
+    #         f"Position: {car.get_center()}"
+    #     ]
         
-        for i, instruction in enumerate(instructions):
-            text = font.render(instruction, True, (255, 255, 255))
-            screen.blit(text, (10, 10 + i * 25))
+    #     for i, instruction in enumerate(instructions):
+    #         text = font.render(instruction, True, (255, 255, 255))
+    #         screen.blit(text, (10, 10 + i * 25))
         
-        pygame.display.flip()
-        clock.tick(60)
+    #     pygame.display.flip()
+    #     clock.tick(60)
     
-    pygame.quit()
+    # pygame.quit()
 
 
-if __name__ == "__main__":
-    # Run the test when this file is executed directly
-    test_main_car()
+# if __name__ == "__main__":
+#     # Run the test when this file is executed directly
+#     test_main_car()
