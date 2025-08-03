@@ -32,7 +32,21 @@ class EnemyCar:
             current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             path = os.path.join(current_dir, "assets", f"car{self.car_number}.png")
             original = pygame.image.load(path).convert_alpha()
-           
+            
+            # rm white bg 
+            cleaned_surface = pygame.Surface(original.get_size(), pygame.SRCALPHA)
+            for x in range(original.get_width()):
+                for y in range(original.get_height()):
+                    pixel = original.get_at((x, y))
+                    r, g, b, a = pixel[0], pixel[1], pixel[2], pixel[3] if len(pixel) > 3 else 255
+                    is_background = (
+                        r >= 255 and g >= 255 and b >= 255 or
+                        r > 240 and g > 240 and b > 240 or
+                        (r > 220 and g > 220 and b > 220 and abs(r-g) < 20 and abs(g-b) < 20) or
+                        a < 10
+                    )
+                    if not is_background:
+                        cleaned_surface.set_at((x, y), pixel)
             
             # calc car size
             road_width = self.screen_width - (2 * self.road_left_border)
@@ -40,7 +54,7 @@ class EnemyCar:
             car_width = max(60, min(car_width, 300))
             car_height = int(car_width * 1.3)
             
-            self.image = pygame.transform.scale(original, (car_width, car_height))
+            self.image = pygame.transform.scale(cleaned_surface, (car_width, car_height))
             self.width = car_width
             self.height = car_height
             
