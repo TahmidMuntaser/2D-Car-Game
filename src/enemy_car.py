@@ -4,13 +4,19 @@ import random
 from config import WIDTH, HEIGHT, FPS
 
 class EnemyCar:
-    def __init__(self, screen_width, screen_height, car_number=2):
+    def __init__(self, screen_width, screen_height, car_number=3):
         self.screen_width = screen_width
         self.screen_height = screen_height
         self.car_number = car_number
-        self.speed = random.randint(2, 5)
+        self.speed = random.randint(2, 5) 
+        # self.width = 60   
+        # self.height = 100
         self.update_road_boundaries()
-        
+        self.load_car_image()
+        self.spawn()
+
+
+     
 
     # road bondary calc
     def update_road_boundaries(self):
@@ -19,10 +25,50 @@ class EnemyCar:
         self.road_right_border = int(self.screen_width * border_percentage)
         
         
+    # load car img
+    def load_car_image(self):
+        try:
+            # load img
+            current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            path = os.path.join(current_dir, "assets", f"car{self.car_number}.png")
+            original = pygame.image.load(path).convert_alpha()
+           
+            
+            # calc car size
+            road_width = self.screen_width - (2 * self.road_left_border)
+            car_width = int(road_width * 0.25)
+            car_width = max(60, min(car_width, 300))
+            car_height = int(car_width * 1.3)
+            
+            self.image = pygame.transform.scale(original, (car_width, car_height))
+            self.width = car_width
+            self.height = car_height
+            
+        except Exception as e:
+            self.image = None
+            self.width = 60
+            self.height = 100
+            self.fallback_color = (0, 255, 0)
+        
+    
+    # car spawn    
+    def spawn(self):
+        road_width = self.screen_width - (self.road_left_border + self.road_right_border)
+        self.x = random.randint(self.road_left_border, self.road_left_border + road_width - self.width)
+        self.y = -self.height
+        self.rect = pygame.Rect(self.x, self.y, self.width, self.height) #collision rectangle
+        
+        
         
     def move(self):
-        pass
+        self.y += self.speed
+        self.rect.y = self.y
+        if self.y > self.screen_height:
+            self.spawn()
     
     
     def draw(self, screen):
-        pass
+        if self.image:
+            screen.blit(self.image, (self.x, self.y))
+        else:
+            pygame.draw.rect(screen, self.fallback_color, self.rect)
