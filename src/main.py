@@ -10,10 +10,9 @@ pygame.display.set_caption("2D Car Game")
 
 # Create car at bottom center, accounting for road borders
 road_border = road.get_road_borders()
-car_start_x = WIDTH // 2 - 40  # Will be adjusted by car's responsive sizing
-car_height = MainCar.get_default_car_height() 
-height=pygame.display.get_surface().get_height() if pygame.display.get_surface() else HEIGHT# Get default car height
-car_start_y = height - car_height - 20  # 20px margin from bottom
+car_start_x = (pygame.display.get_surface().get_width() -MainCar.get_default_car_width()) // 2 
+height=pygame.display.get_surface().get_height() if pygame.display.get_surface() else HEIGHT
+car_start_y = height - MainCar.get_default_car_height() - 10  # 10px margin from bottom
 car = MainCar(car_start_x, car_start_y, car_number=3)
 clock = pygame.time.Clock()
 
@@ -32,11 +31,7 @@ while running:
             car.update_screen_size(WIDTH, HEIGHT)  # Update car boundaries
         elif i.type == pygame.KEYDOWN:
             # Change car model with number keys
-            if i.key == pygame.K_1:
-                car.change_car(1)
-            elif i.key == pygame.K_2:
-                car.change_car(2)
-            elif i.key == pygame.K_3:
+            if i.key == pygame.K_3:
                 car.change_car(3)
             elif i.key == pygame.K_4:
                 car.change_car(4)
