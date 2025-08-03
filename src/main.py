@@ -2,6 +2,7 @@ import pygame
 from config import WIDTH, HEIGHT, FPS
 from road import Road
 from main_car import MainCar
+from enemy_car import EnemyCar
 
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)  
@@ -14,6 +15,7 @@ car_start_x = (pygame.display.get_surface().get_width() -MainCar.get_default_car
 height=pygame.display.get_surface().get_height() if pygame.display.get_surface() else HEIGHT
 car_start_y = height - MainCar.get_default_car_height() - 10  # 10px margin from bottom
 car = MainCar(car_start_x, car_start_y, car_number=3)
+enemy_car = EnemyCar(WIDTH, HEIGHT)
 clock = pygame.time.Clock()
 
 running = True
@@ -29,6 +31,9 @@ while running:
             screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
             road.set_size(WIDTH, HEIGHT)
             car.update_screen_size(WIDTH, HEIGHT)  # Update car boundaries
+            enemy_car.update_screen_size(WIDTH, HEIGHT)
+
+        
         elif i.type == pygame.KEYDOWN:
             # Change car model with number keys
             if i.key == pygame.K_3:
@@ -46,9 +51,9 @@ while running:
     # Draw everything
     road.move()
     road.draw(screen)
-    
-    # Draw car on top of road
     car.draw(screen)
+    enemy_car.move()
+    enemy_car.draw(screen)
 
     # Draw border
     pygame.draw.rect(screen, (100, 100, 150), (0, 0, WIDTH, HEIGHT), 5)
