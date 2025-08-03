@@ -86,3 +86,29 @@ class EnemyCar:
             screen.blit(self.image, (self.x, self.y))
         else:
             pygame.draw.rect(screen, self.fallback_color, self.rect)
+            
+            
+            
+    # upd screen size 
+    def update_screen_size(self, width, height):
+        # old car position 
+        old_center_x_ratio = (self.x + self.width // 2 - self.road_left_border) / (
+            self.screen_width - self.road_left_border - self.road_right_border)
+        distance_from_top = self.y
+        
+        # upd new screen size 
+        self.screen_width = width
+        self.screen_height = height
+        self.update_road_boundaries()
+        self.load_car_image()
+        
+        # recalculate position
+        new_road_width = self.screen_width - (self.road_left_border + self.road_right_border)
+        self.x = int(self.road_left_border + old_center_x_ratio * new_road_width - self.width // 2)
+        self.y = distance_from_top
+        
+        # boundary check 
+        self.x = max(self.road_left_border, min(self.x, self.screen_width - self.road_right_border - self.width))
+        # collision rectangle 
+        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
+
