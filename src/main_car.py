@@ -85,7 +85,7 @@ class MainCar:
             
             road_width = self.screen_width - (2 * int(self.screen_width * 0.1)) 
             car_width = int(road_width * 0.25)
-            car_width = max(60, min(car_width, 300))  # Between 60-300 pixels
+            car_width = max(60, min(car_width, 250))  # Between 60-300 pixels
             car_height = int(car_width * 1.3)  # Height is 1.3x width
             
             self.image = pygame.transform.scale(cleaned_surface, (car_width, car_height))
@@ -113,15 +113,15 @@ class MainCar:
         car_width = int(road_width * 0.25)  # 25% of road width
         
         # Ensure reasonable size limits
-        car_width = max(60, min(car_width, 300))  # Between 60-300 pixels
+        car_width = max(60, min(car_width, 200))  # Between 60-300 pixels
         car_height = int(car_width * 1.3)  # Height is 1.3x width
-        
+        print(f"Default car size: {car_width}x{car_height}")
         return car_height
     def get_default_car_width():
         screen_width = pygame.display.get_surface().get_width() if pygame.display.get_surface() else WIDTH
         road_width = screen_width - (2 * int(screen_width * 0.1))
         car_width = int(road_width * 0.25)
-        car_width = max(60, min(car_width, 300))
+        car_width = max(60, min(car_width, 200))
         return car_width
 
     def move_left(self):
@@ -167,9 +167,21 @@ class MainCar:
         else:
             x_ratio_in_road = 0.5  # Center if road was too narrow
         
-        # For vertical position: use absolute pixel distance from bottom
-        # This keeps the car at the same relative height regardless of aspect ratio
-        distance_from_bottom = old_height - (self.y + getattr(self, 'height', 100))
+        # For vertical position: calculate relative position within available space
+        # This approach works for both top and bottom positioning
+        old_car_height = getattr(self, 'height', 100)
+        
+        # Calculate available space for car movement (screen height - car height)
+        old_available_space = old_height - old_car_height
+        
+        if old_available_space > 0:
+            # Calculate ratio where 0.0 = top, 1.0 = bottom
+            y_ratio = self.y / old_available_space
+        else:
+            y_ratio = 0.0  # Default to top if no space available
+        
+        # Clamp the ratio to valid range
+        y_ratio = max(0.0, min(1.0, y_ratio))
         
         # Update screen dimensions
         self.screen_width = width
@@ -186,8 +198,14 @@ class MainCar:
         new_center_x = self.road_left_border + (x_ratio_in_road * new_road_width)
         self.x = int(new_center_x - self.width // 2)
         
-        # Calculate new vertical position maintaining distance from bottom
-        self.y = self.screen_height - distance_from_bottom - self.height
+        # Calculate new vertical position using ratio
+        # Position within the available movement space
+        new_available_space = self.screen_height - self.height
+        
+        if new_available_space > 0:
+            self.y = int(y_ratio * new_available_space)
+        else:
+            self.y = 0  # If screen too small, place at top
         
         # Ensure car stays within valid boundaries
         # Check horizontal boundaries (road area)
@@ -211,7 +229,7 @@ class MainCar:
         self.update_position()
         
         print(f"Screen resized from {old_width}x{old_height} to {width}x{height}")
-        print(f"Car positioned at ({self.x}, {self.y}), distance from bottom: {distance_from_bottom}px")
+        print(f"Car positioned at ({self.x}, {self.y}), y-ratio: {y_ratio:.3f}")
     
     def handle_input(self, keys):
         """Handle keyboard input for car movement"""
