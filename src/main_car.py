@@ -22,7 +22,7 @@ class MainCar:
         self.load_car_image()
         
         # Create collision rectangle
-        self.rect = pygame.Rect(x, y, self.width, self.height)
+        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
         
         # Movement flags
         self.moving_left = False
@@ -192,7 +192,7 @@ class MainCar:
         
         # Reload car image with new responsive size
         self.load_car_image()
-        
+        self.rect.size = (self.width, self.height)
         # Calculate new horizontal position within the new road area
         new_road_width = self.screen_width - (2 * self.road_left_border)
         new_center_x = self.road_left_border + (x_ratio_in_road * new_road_width)

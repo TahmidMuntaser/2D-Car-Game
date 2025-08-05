@@ -55,6 +55,24 @@ while running:
     enemy_car.move()
     enemy_car.draw(screen)
 
+    # Check for collisions
+    inflate_w = int(car.width * 0.45)
+    inflate_h = int(car.height * 0.05)
+    main_rect = car.get_rect().inflate(-inflate_w, -inflate_h)
+
+    inflate_w_enemy = int(enemy_car.width * 0.45)
+    inflate_h_enemy = int(enemy_car.height * 0.05)
+    enemy_rect = enemy_car.get_rect().inflate(-inflate_w_enemy, -inflate_h_enemy)
+
+
+    # pygame.draw.rect(screen, (255, 0, 0), main_rect, 2)       
+    # pygame.draw.rect(screen, (0, 255, 0), enemy_rect, 2)      
+
+    if main_rect.colliderect(enemy_rect):
+        print("💥 Collision detected!")
+        running = False
+
+
     # Draw border
     pygame.draw.rect(screen, (100, 100, 150), (0, 0, WIDTH, HEIGHT), 5)
             

@@ -57,6 +57,7 @@ class EnemyCar:
             self.image = pygame.transform.scale(cleaned_surface, (car_width, car_height))
             self.width = car_width
             self.height = car_height
+            # self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
             
         except Exception as e:
             self.image = None
@@ -111,4 +112,7 @@ class EnemyCar:
         self.x = max(self.road_left_border, min(self.x, self.screen_width - self.road_right_border - self.width))
         # collision rectangle 
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
+        
+    def get_rect(self):
+        return self.rect
 
