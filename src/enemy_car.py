@@ -49,9 +49,9 @@ class EnemyCar:
                         cleaned_surface.set_at((x, y), pixel)
             
             # calc car size
-            road_width = self.screen_width - (2 * self.road_left_border)
+            road_width = self.screen_width - (2 * int(self.screen_width * 0.1)) 
             car_width = int(road_width * 0.25)
-            car_width = max(60, min(car_width, 300))
+            car_width = max(60, min(car_width, 250))
             car_height = int(car_width * 1.3)
             
             self.image = pygame.transform.scale(cleaned_surface, (car_width, car_height))
