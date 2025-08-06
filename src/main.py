@@ -3,6 +3,8 @@ from config import WIDTH, HEIGHT, FPS
 from road import Road
 from main_car import MainCar
 from enemy_car import EnemyCar
+from game_over import show_game_over
+
 
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)  
@@ -70,7 +72,7 @@ while running:
 
     if main_rect.colliderect(enemy_rect):
         print("💥 Collision detected!")
-        running = False
+        running = show_game_over(screen, road, car, enemy_car, car_start_x, car_start_y)
 
 
     # Draw border
