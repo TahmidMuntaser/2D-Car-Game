@@ -27,3 +27,19 @@ def show_game_over(screen, road, car, enemy_car, car_start_x, car_start_y):
         screen.blit(quit_text, (quit_rect.x + 70, quit_rect.y + 10))
         
         pygame.display.flip()
+        
+        
+        for i in pygame.event.get():
+            if i.type == pygame.QUIT:   
+                pygame.quit()
+                exit()
+                
+            elif i.type == pygame.MOUSEBUTTONDOWN:
+                if again_rect.collidepoint(i.pos):
+                    enemy_car.spawn()
+                    car.set_position(car_start_x, car_start_y)
+                    return True
+                
+                elif quit_rect.collidepoint(i.pos):
+                    pygame.quit()
+                    exit()
