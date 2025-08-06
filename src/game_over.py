@@ -44,6 +44,10 @@ def show_game_over(screen, road, car, enemy_car, car_start_x, car_start_y):
             elif i.type == pygame.MOUSEBUTTONDOWN:
                 if again_rect.collidepoint(i.pos):
                     enemy_car.spawn()
+                    # car position 
+                    width, height = screen.get_size()
+                    car_start_x = (width - car.width)//2
+                    car_start_y = height - car.height - 10
                     car.set_position(car_start_x, car_start_y)
                     return True
                 
