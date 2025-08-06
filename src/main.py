@@ -71,7 +71,7 @@ while running:
     # pygame.draw.rect(screen, (0, 255, 0), enemy_rect, 2)      
 
     if main_rect.colliderect(enemy_rect):
-        print("💥 Collision detected!")
+        # print("💥 Collision detected!")
         running = show_game_over(screen, road, car, enemy_car, car_start_x, car_start_y)
 
 
