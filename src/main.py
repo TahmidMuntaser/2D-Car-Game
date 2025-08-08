@@ -15,11 +15,16 @@ def start_game(selected_car=3):
 
     road = Road(current_width, current_height)
 
-    # Create car at bottom center, accounting for road borders
-    car_start_x = (current_width - MainCar.get_default_car_width()) // 2
-    height = current_height
-    car_start_y = height - MainCar.get_default_car_height() - 10  # 10px margin from bottom
-    car = MainCar(car_start_x, car_start_y, car_number=selected_car)
+    # Create car first with temporary position
+    car = MainCar(0, 0, car_number=selected_car)
+    
+    # Now calculate proper starting position based on actual car size after initialization
+    car_start_x = (current_width - car.width) // 2
+    car_start_y = current_height - car.height - 10  # 10px margin from bottom
+    
+    # Set the car to the correct position
+    car.set_position(car_start_x, car_start_y)
+    
     enemy_car = EnemyCar(current_width, current_height)
     clock = pygame.time.Clock()
 
@@ -90,10 +95,17 @@ def main():
         # Show main menu and get selected car
         selected_car = show_main_menu()
         if selected_car is None:
-            break  # User quit
-        return_to_menu = start_game(selected_car)
-        if not return_to_menu:
+            # User quit from menu
             break
+        elif selected_car is False:
+            # Something went wrong, but don't start game
+            break
+        else:
+            # User selected a car, start the game
+            return_to_menu = start_game(selected_car)
+            if not return_to_menu:
+                # User quit from game
+                break
     pygame.quit()
 
 if __name__ == "__main__":
