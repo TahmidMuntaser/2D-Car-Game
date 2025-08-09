@@ -40,6 +40,9 @@ def show_game_over(screen, road, car, enemy_car, car_start_x, car_start_y):
                 
             elif i.type == pygame.VIDEORESIZE:
                 screen = pygame.display.set_mode(i.size, pygame.RESIZABLE)
+                road.set_size(i.size[0], i.size[1])
+                car.update_screen_size(i.size[0], i.size[1])
+                enemy_car.update_screen_size(i.size[0], i.size[1])
                 
             elif i.type == pygame.MOUSEBUTTONDOWN:
                 if again_rect.collidepoint(i.pos):

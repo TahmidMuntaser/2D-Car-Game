@@ -8,10 +8,7 @@ class Button:
     
     def __init__(self, x, y, width, height, text, color, text_color, hover_color):
         self.rect = pygame.Rect(x, y, width, height)
-        self.text = text
-        self.color = color
-        self.text_color = text_color
-        self.hover_color = hover_color
+        self.text, self.color, self.text_color, self.hover_color = text, color, text_color, hover_color
         self.is_hovered = False
         self.font = pygame.font.Font(None, 36)
         
@@ -20,28 +17,22 @@ class Button:
         color = self.hover_color if self.is_hovered else self.color
         pygame.draw.rect(screen, color, self.rect)
         pygame.draw.rect(screen, (255, 255, 255), self.rect, 3)  # White border
-        
         # Render text
         text_surface = self.font.render(self.text, True, self.text_color)
-        text_rect = text_surface.get_rect(center=self.rect.center)
-        screen.blit(text_surface, text_rect)
+        screen.blit(text_surface, text_surface.get_rect(center=self.rect.center))
     
     def handle_event(self, event):
         """Handle mouse events for the button"""
         if event.type == pygame.MOUSEMOTION:
             self.is_hovered = self.rect.collidepoint(event.pos)
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            if self.rect.collidepoint(event.pos):
-                return True
+        elif event.type == pygame.MOUSEBUTTONDOWN and self.rect.collidepoint(event.pos):
+            return True
         return False
 
 class CarPreview:
     """Preview car selection"""
-    
     def __init__(self, x, y):
-        self.x = x
-        self.y = y
-        self.current_car = 3  # Default car
+        self.x, self.y, self.current_car = x, y, 3
         self.car_images = {}
         self.load_car_images()
         
@@ -53,15 +44,12 @@ class CarPreview:
                 assets_path = os.path.join(current_dir, "assets", f"car{car_num}.png")
                 if os.path.exists(assets_path):
                     original = pygame.image.load(assets_path).convert_alpha()
-                    # Scale down for preview
-                    scaled = pygame.transform.scale(original, (80, 100))
-                    self.car_images[car_num] = scaled
+                    self.car_images[car_num] = pygame.transform.scale(original, (80, 100))
         except Exception as e:
             print(f"Error loading car images: {e}")
-            # Create fallback rectangles
+            colors = {3: (255, 0, 0), 4: (0, 255, 0), 5: (0, 0, 255)}
             for car_num in range(3, 6):
                 surface = pygame.Surface((80, 100))
-                colors = {3: (255, 0, 0), 4: (0, 255, 0), 5: (0, 0, 255)}
                 surface.fill(colors[car_num])
                 self.car_images[car_num] = surface
     
@@ -69,26 +57,13 @@ class CarPreview:
         """Draw car preview"""
         if self.current_car in self.car_images:
             screen.blit(self.car_images[self.current_car], (self.x, self.y))
-            
-        # Draw car number with responsive font size
-        screen_height = screen.get_height()
-        font_size = max(24, min(40, int(screen_height * 0.04)))
+        font_size = max(24, min(40, int(screen.get_height() * 0.04)))
         font = pygame.font.Font(None, font_size)
         text = font.render(f"Car {self.current_car}", True, (255, 255, 255))
-        text_rect = text.get_rect(center=(self.x + 40, self.y + 120))
-        screen.blit(text, text_rect)
-    
-    # def next_car(self):
-    #     """Switch to next car"""
-    #     self.current_car = self.current_car + 1 if self.current_car < 5 else 3
-    
-    # def prev_car(self):
-    #     """Switch to previous car"""
-    #     self.current_car = self.current_car - 1 if self.current_car > 3 else 5
+        screen.blit(text, text.get_rect(center=(self.x + 40, self.y + 120)))
 
 class InitialWindow:
     """Main menu window for the 2D Car Game"""
-    
     def __init__(self):
         pygame.init()
         # Get current screen size or use defaults
@@ -180,7 +155,6 @@ class InitialWindow:
     def draw_background(self):
         """Draw animated background"""
         self.screen.fill(self.bg_color)
-        
         # Draw some road-like lines for visual appeal
         line_color = (100, 100, 120)
         for i in range(0, self.window_height + 50, 50):
@@ -190,39 +164,22 @@ class InitialWindow:
     def draw_title(self):
         """Draw the game title"""
         title_text = self.title_font.render("2D CAR GAME", True, self.text_color)
-        title_rect = title_text.get_rect(center=(self.window_width // 2, self.window_height // 4))
-        self.screen.blit(title_text, title_rect)
-        
-        # Subtitle
+        #
+        self.screen.blit(title_text, title_text.get_rect(center=(self.window_width // 2, self.window_height // 4)))
         subtitle_text = self.subtitle_font.render("Drive and Survive!", True, (200, 200, 200))
-        subtitle_rect = subtitle_text.get_rect(center=(self.window_width // 2, self.window_height // 4 + 50))
-        self.screen.blit(subtitle_text, subtitle_rect)
+        self.screen.blit(subtitle_text, subtitle_text.get_rect(center=(self.window_width // 2, self.window_height // 4 + 50)))
     
     def draw_main_menu(self):
-        """Draw the main menu"""
         self.draw_background()
         self.draw_title()
-        
-        # Draw main menu buttons
-        for button_name in ['new_game', 'change_car', 'instructions', 'quit']:
-            self.buttons[button_name].draw(self.screen)
+        for btn in ['new_game', 'change_car', 'instructions', 'quit']: self.buttons[btn].draw(self.screen)
     
     def draw_car_selection(self):
-        """Draw the car selection screen"""
         self.draw_background()
-        
-        # Responsive font sizes
-        title_size = max(48, min(72, int(self.window_height * 0.08)))
-        instruction_size = max(24, min(36, int(self.window_height * 0.04)))
-        small_text_size = max(20, min(28, int(self.window_height * 0.03)))
-        
-        # Title
+        title_size, instruction_size, small_text_size = max(48, min(72, int(self.window_height * 0.08))), max(24, min(36, int(self.window_height * 0.04))), max(20, min(28, int(self.window_height * 0.03)))
         title_font = pygame.font.Font(None, title_size)
         title_text = title_font.render("SELECT YOUR CAR", True, self.text_color)
-        title_rect = title_text.get_rect(center=(self.window_width // 2, self.window_height // 5))
-        self.screen.blit(title_text, title_rect)
-        
-        # Car preview
+        self.screen.blit(title_text, title_text.get_rect(center=(self.window_width // 2, self.window_height // 5)))
         self.car_preview.current_car = self.selected_car
         self.car_preview.draw(self.screen)
         
@@ -345,9 +302,7 @@ class InitialWindow:
                 dots_rect = dots_surface.get_rect(center=(self.window_width // 2, self.window_height - 30))
                 self.screen.blit(dots_surface, dots_rect)
                 break
-            
-            text_rect = text_surface.get_rect(center=(self.window_width // 2, current_y))
-            self.screen.blit(text_surface, text_rect)
+            self.screen.blit(text_surface, text_surface.get_rect(center=(self.window_width // 2, current_y)))
             current_y += line_spacing
 
     def handle_events(self):
