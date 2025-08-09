@@ -7,9 +7,12 @@ from game_over import show_game_over
 from initial_window import show_main_menu  # Menu screen
 
 def start_game(selected_car=3):
-    # Initialize screen with current display size
-    current_width = pygame.display.get_surface().get_width() if pygame.display.get_surface() else WIDTH
-    current_height = pygame.display.get_surface().get_height() if pygame.display.get_surface() else HEIGHT
+    # Get the actual current screen size (which might have been resized during game over)
+    current_surface = pygame.display.get_surface()
+    current_width = current_surface.get_width() if current_surface else WIDTH
+    current_height = current_surface.get_height() if current_surface else HEIGHT
+
+    # Ensure the screen is properly set to the current size
     screen = pygame.display.set_mode((current_width, current_height), pygame.RESIZABLE)
     pygame.display.set_caption("2D Car Game")
 
@@ -42,6 +45,9 @@ def start_game(selected_car=3):
                 road.set_size(current_width, current_height)
                 car.update_screen_size(current_width, current_height)  # Update car boundaries
                 enemy_car.update_screen_size(current_width, current_height)
+                # Update car start position for when game over occurs
+                car_start_x = (current_width - car.width) // 2
+                car_start_y = current_height - car.height - 10
             elif i.type == pygame.KEYDOWN:
                 # Change car model with number keys
                 if i.key == pygame.K_1:
@@ -83,8 +89,6 @@ def start_game(selected_car=3):
             if not game_over_result:
                 return True  # Return to main menu
 
-        # Draw border
-        pygame.draw.rect(screen, (100, 100, 150), (0, 0, current_width, current_height), 5)
         pygame.display.flip()
 
     return False  # Exit game
