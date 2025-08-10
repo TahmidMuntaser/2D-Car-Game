@@ -5,9 +5,14 @@ def show_game_over(screen, road, car, enemy_car, car_start_x, car_start_y):
     font = pygame.font.Font(None, 74)
     small_font = pygame.font.Font(None, 36)
     
+    bg_color = (30, 30, 50)         # Dark blue-gray
+    button_color = (70, 130, 180)   # Steel blue
+    button_hover_color = (100, 149, 237)  # Cornflower blue
+    text_color = (255, 255, 255)    # White
+    
     game_over_text = font.render("Game Over", True, (255, 0, 0))
-    again = small_font.render("Try Again", True, (255, 255, 255))
-    quit_text = small_font.render("Quit", True, (255, 255, 255))
+    again = small_font.render("Try Again", True, text_color)
+    quit_text = small_font.render("Quit", True, text_color)
     
     # again_rect = pygame.Rect(WIDTH//2 - 100, HEIGHT//2 + 20, 200, 50)
     # quit_rect = pygame.Rect(WIDTH//2 - 100, HEIGHT//2 + 90, 200, 50)
@@ -18,18 +23,40 @@ def show_game_over(screen, road, car, enemy_car, car_start_x, car_start_y):
         again_rect = pygame.Rect(width // 2 - 100, height // 2 + 20, 200, 50)
         quit_rect = pygame.Rect(width // 2 - 100, height // 2 + 90, 200, 50)
         
-        screen.fill((0, 0, 0))  
-        road.draw(screen)
-        screen.blit(game_over_text, (width//2 - game_over_text.get_width()//2, height//2 - game_over_text.get_height()//2))
+        screen.fill(bg_color)  
+        
+        # road.draw(screen)
+        line_color = (100, 100, 120)
+        for i in range(0, height + 50, 50):
+            y = (i + pygame.time.get_ticks() // 10) % (height + 50)
+            pygame.draw.rect(screen, line_color, (width // 2 - 5, y, 10, 30))
+        
+        screen.blit(game_over_text, (width//2 - game_over_text.get_width()//2, height//2 - game_over_text.get_height()//2-60)) #gameover
         
         # draw rectengles 
-        pygame.draw.rect(screen, (0, 128, 0), again_rect)
-        pygame.draw.rect(screen, (128, 0, 0), quit_rect)
+        
+        mouse_pos = pygame.mouse.get_pos()
+        # Try Again button with hover
+        if again_rect.collidepoint(mouse_pos):
+            pygame.draw.rect(screen, button_hover_color, again_rect)
+        else:
+            pygame.draw.rect(screen, button_color, again_rect)
+        # Add white border
+        pygame.draw.rect(screen, (255, 255, 255), again_rect, 3)
+
+        # Quit button with hover
+        if quit_rect.collidepoint(mouse_pos):
+            pygame.draw.rect(screen, button_hover_color, quit_rect)
+        else:
+            pygame.draw.rect(screen, button_color, quit_rect)
+        # Add white border
+        pygame.draw.rect(screen, (255, 255, 255), quit_rect, 3)
+        
 
         # draw text on rectangles
-        screen.blit(again, (again_rect.x + 50, again_rect.y + 10))
-        screen.blit(quit_text, (quit_rect.x + 70, quit_rect.y + 10))
-        
+        screen.blit(again, again.get_rect(center=again_rect.center))
+        screen.blit(quit_text, quit_text.get_rect(center=quit_rect.center))
+                
         pygame.display.flip()
         
         
