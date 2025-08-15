@@ -5,6 +5,8 @@ from main_car import MainCar
 from enemy_car import EnemyCar
 from game_over import show_game_over
 from initial_window import show_main_menu  # Menu screen
+from score import Score
+
 
 def start_game(selected_car=3):
     # Get the actual current screen size (which might have been resized during game over)
