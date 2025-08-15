@@ -1,7 +1,6 @@
 import pygame
-import sys
 import os
-from config import WIDTH, HEIGHT, FPS
+from config import WIDTH, HEIGHT
 
 class Button:
     """A simple button class for the menu"""
@@ -222,44 +221,49 @@ class InitialWindow:
         self.draw_background()
         
         # Responsive font sizes based on screen height
-        title_size = max(48, min(72, int(self.window_height * 0.08)))
+        title_size = max(36, min(72, int(self.window_height * 0.08)))
         header_size = max(28, min(40, int(self.window_height * 0.045)))
         text_size = max(20, min(30, int(self.window_height * 0.035)))
         
         # Title
         title_font = pygame.font.Font(None, title_size)
         title_text = title_font.render("GAME INSTRUCTIONS", True, self.text_color)
-        title_rect = title_text.get_rect(center=(self.window_width // 2, self.window_height // 6))
+        title_rect = title_text.get_rect(center=(self.window_width // 2, self.window_height // 8))
         self.screen.blit(title_text, title_rect)
         
         # Instructions info
         instructions_info = [
             ("GAME CONTROLS:", "header"),
+            ("", "empty"),
             ("ARROW KEYS or WASD - Move your car", "text"),
             ("LEFT/RIGHT ARROWS - Change car in selection", "text"),
             ("Numbers 1, 2, 3 - Change car model during game", "text"),
             ("ESC - Return to main menu", "text"),
             ("", "empty"),
             ("GAME OBJECTIVES:", "header"),
+            ("", "empty"),
             ("- Avoid colliding with enemy cars", "text"),
             ("- Survive as long as possible", "text"),
             ("- Use responsive controls to navigate", "text"),
             ("", "empty"),
             ("FEATURES:", "header"),
+            ("", "empty"),
             ("- Dynamic screen resizing support", "text"),
             ("- Multiple car models to choose from", "text"),
             ("- Realistic collision detection", "text"),
-            ("- Smooth car movement and controls", "text")
-        ]
-        
+            ("- Smooth car movement and controls", "text"),
+            ("", "empty"),
+            ("", "empty"),
+            ("Press Esc to return to main menu", "text")
+        ]    
         # Calculate optimal spacing based on screen size
-        available_height = self.window_height - (self.window_height // 6) - 100  # Space after title and bottom margin
+        available_height = self.window_height - (self.window_height // 8) -200  # Space above title and bottom margin
         total_text_lines = len([info for info in instructions_info if info[1] != "empty"])
         line_spacing = min(max(20, available_height // (total_text_lines + 2)), text_size + 8)
         
         # Starting position
-        y_start = self.window_height // 6 + title_size + 30
-        current_y = y_start
+        y_start = self.window_height // 8 + title_size + 30
+        cur_y = y_start
         
         # Create fonts
         header_font = pygame.font.Font(None, header_size)
@@ -267,13 +271,13 @@ class InitialWindow:
         
         for info_text, info_type in instructions_info:
             if info_type == "empty":
-                current_y += line_spacing // 2  # Half spacing for empty lines
+                cur_y += line_spacing // 2  # Half spacing for empty lines
                 continue
             
             if info_type == "header":
                 color = self.text_color
                 font = header_font
-                current_y += line_spacing // 4  # Extra space before headers
+                cur_y += line_spacing // 4  # Extra space before headers
             else:
                 color = (200, 200, 200)
                 font = text_font
@@ -296,14 +300,14 @@ class InitialWindow:
                 text_surface = font.render(truncated_text, True, color)
             
             # Check if we have enough vertical space
-            if current_y + line_spacing > self.window_height - 50:
+            if cur_y + line_spacing > self.window_height - 50:
                 # Add "..." if we run out of space
                 dots_surface = text_font.render("... (press ESC to return)", True, (150, 150, 150))
                 dots_rect = dots_surface.get_rect(center=(self.window_width // 2, self.window_height - 30))
                 self.screen.blit(dots_surface, dots_rect)
                 break
-            self.screen.blit(text_surface, text_surface.get_rect(center=(self.window_width // 2, current_y)))
-            current_y += line_spacing
+            self.screen.blit(text_surface, text_surface.get_rect(center=(self.window_width // 2, cur_y)))
+            cur_y += line_spacing
 
     def handle_events(self):
         """Handle all events"""
@@ -326,8 +330,7 @@ class InitialWindow:
                     continue  # Skip other event handling
             
             # Handle button clicks based on current state
-            if self.show_options == "car_selection":
-                self.handle_car_selection_events(event)
+            if self.show_options == "car_selection": self.handle_car_selection_events(event)
             elif self.show_options != "instructions":  # Only handle main menu if not in instructions
                 self.handle_main_menu_events(event)
     
@@ -371,13 +374,10 @@ class InitialWindow:
             self.handle_events()
             
             # Draw current screen
-            if self.show_options == "car_selection":
-                self.draw_car_selection()
-            elif self.show_options == "instructions":
-                self.draw_instructions()
-            else:
-                self.draw_main_menu()
-            
+            if self.show_options == "car_selection": self.draw_car_selection()
+            elif self.show_options == "instructions": self.draw_instructions()
+            else: self.draw_main_menu()
+
             pygame.display.flip()
             self.clock.tick(60)
         
@@ -393,7 +393,4 @@ def show_main_menu():
     menu = InitialWindow()
     return menu.run()
 
-if __name__ == "__main__":
-    selected_car = show_main_menu()
-    if selected_car:
-        print(f"Starting game with car {selected_car}")
+if __name__ == "__main__": show_main_menu()
