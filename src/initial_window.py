@@ -150,6 +150,17 @@ class InitialWindow:
             car_button_width, car_button_height, "Next",
             self.button_color, self.text_color, self.button_hover_color
         )
+        
+        # Select car button - positioned below the car preview with responsive sizing
+        select_button_width = min(200, int(self.window_width * 0.3))
+        select_button_height = max(45, int(self.window_height * 0.06))
+        select_car_y = car_y + car_button_height + max(30, int(self.window_height * 0.04)) + 50
+        
+        self.buttons['select_car'] = Button(
+            self.window_width // 2 - select_button_width // 2, select_car_y,
+            select_button_width, select_button_height, "Select the Car",
+            (70, 180, 70), self.text_color, (90, 200, 90)  # Green color for select
+        )
     
     def draw_background(self):
         """Draw animated background"""
@@ -185,6 +196,7 @@ class InitialWindow:
         # Car selection buttons
         self.buttons['prev_car'].draw(self.screen)
         self.buttons['next_car'].draw(self.screen)
+        self.buttons['select_car'].draw(self.screen)
         
         # Instructions with proper spacing
         instruction_font = pygame.font.Font(None, instruction_size)
@@ -209,7 +221,7 @@ class InitialWindow:
             instruction_text = instruction_font.render("Use Previous/Next or Arrow Keys to choose your car", True, (200, 200, 200))
             instruction_rect = instruction_text.get_rect(center=(self.window_width // 2, instruction_y))
             self.screen.blit(instruction_text, instruction_rect)
-            esc_y = instruction_y + instruction_size + 15
+            esc_y = self.screen.get_height() - 50
         
         # ESC instruction
         esc_text = small_font.render("Press ESC to return to main menu", True, (150, 150, 150))
@@ -354,6 +366,9 @@ class InitialWindow:
             self.selected_car = max(3, self.selected_car - 1)
         elif self.buttons['next_car'].handle_event(event):
             self.selected_car = min(5, self.selected_car + 1)
+        elif self.buttons['select_car'].handle_event(event):
+            # User selected a car, return to main menu
+            self.show_options = False
         
         # Handle arrow keys
         elif event.type == pygame.KEYDOWN:
