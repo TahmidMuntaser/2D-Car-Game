@@ -32,6 +32,7 @@ def start_game(selected_car=3):
     
     enemy_car = EnemyCar(current_width, current_height)
     clock = pygame.time.Clock()
+    score = Score()
 
     running = True
     while running:
@@ -65,6 +66,9 @@ def start_game(selected_car=3):
         keys = pygame.key.get_pressed()
         car.handle_input(keys)
         car.update_position()
+        
+        # Score update
+        score.update()
 
         # Draw everything
         road.move()
@@ -72,6 +76,18 @@ def start_game(selected_car=3):
         car.draw(screen)
         enemy_car.move()
         enemy_car.draw(screen)
+        
+        # Draw score text
+        font = pygame.font.Font(None, 48)
+        score_text = font.render(f"Score: {score.get_score()}", True, (255, 255, 255))
+        
+        # Background box
+        box_rect = pygame.Rect(20, 15, score_text.get_width() + 20, score_text.get_height() + 10)
+        pygame.draw.rect(screen, (25, 25, 25), box_rect, border_radius=8)
+        
+        # Draw text
+        screen.blit(score_text, (30, 20))
+
 
         # Check for collisions
         inflate_w = int(car.width * 0.45)
@@ -90,6 +106,8 @@ def start_game(selected_car=3):
             game_over_result = show_game_over(screen, road, car, enemy_car, car_start_x, car_start_y)
             if not game_over_result:
                 return True  # Return to main menu
+            else:
+                score.reset()
 
         pygame.display.flip()
 
