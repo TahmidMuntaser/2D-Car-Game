@@ -103,7 +103,7 @@ def start_game(selected_car=3):
 
         if main_rect.colliderect(enemy_rect):
             # print("💥 Collision detected!")
-            game_over_result = show_game_over(screen, road, car, enemy_car, car_start_x, car_start_y)
+            game_over_result = show_game_over(screen, road, car, enemy_car, car_start_x, car_start_y, score.get_score())
             
             if game_over_result == "retry":
                 score.reset()  # restart game
