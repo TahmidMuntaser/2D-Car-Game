@@ -104,10 +104,13 @@ def start_game(selected_car=3):
         if main_rect.colliderect(enemy_rect):
             # print("💥 Collision detected!")
             game_over_result = show_game_over(screen, road, car, enemy_car, car_start_x, car_start_y)
-            if not game_over_result:
-                return True  # Return to main menu
+            
+            if game_over_result == "retry":
+                score.reset()  # restart game
+            elif game_over_result == "menu":
+                return True     # back to main menu
             else:
-                score.reset()
+                return False    # quit
 
         pygame.display.flip()
 
