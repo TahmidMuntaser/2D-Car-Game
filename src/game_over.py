@@ -1,10 +1,13 @@
 import pygame
 from config import WIDTH, HEIGHT
+from high_score import update_highscore, load_highscore
 
 def show_game_over(screen, road, car, enemy_car, car_start_x, car_start_y, score):
     font = pygame.font.Font(None, 74)
     mid_font = pygame.font.Font(None, 50)
     small_font = pygame.font.Font(None, 36)
+    
+    curr_high = update_highscore(score)
     
     bg_color = (30, 30, 50)         # Dark blue-gray
     button_color = (70, 130, 180)   # Steel blue
@@ -13,6 +16,7 @@ def show_game_over(screen, road, car, enemy_car, car_start_x, car_start_y, score
     
     game_over_text = font.render("Game Over", True, (255, 0, 0))
     score_text = mid_font.render(f"Final Score: {score}", True, text_color)
+    highscore_text = small_font.render(f"High Score: {curr_high}", True, (255, 215, 0)) 
     again = small_font.render("Try Again", True, text_color)
     menu_text = small_font.render("Main Menu", True, text_color)
     quit_text = small_font.render("Quit", True, text_color)
@@ -38,7 +42,8 @@ def show_game_over(screen, road, car, enemy_car, car_start_x, car_start_y, score
             pygame.draw.rect(screen, line_color, (width // 2 - 5, y, 10, 30))
         
         screen.blit(game_over_text, (width//2 - game_over_text.get_width()//2, height//2 - game_over_text.get_height()//2-150)) #gameover 
-        screen.blit(score_text, (width//2 - score_text.get_width()//2, height//2 - score_text.get_height()//2 - 60))
+        screen.blit(score_text, (width//2 - score_text.get_width()//2, height//2 - score_text.get_height()//2 - 65))
+        screen.blit(highscore_text, (width//2 - highscore_text.get_width()//2, height//2 - highscore_text.get_height()//2 -18))
         mouse_pos = pygame.mouse.get_pos()
         
         
