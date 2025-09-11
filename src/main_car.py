@@ -6,12 +6,7 @@ class MainCar:
     """Main player car class with image loading and movement controls"""
     
     def __init__(self, x, y, car_number=5):
-        self.x = x
-        self.y = y
-        self.car_number = car_number
-        self.speed = 5
-        
-        # Screen boundaries (will be updated by the game)
+        self.x, self.y, self.car_number, self.speed = x, y, car_number, 5
         self.screen_width = pygame.display.get_surface().get_width() if pygame.display.get_surface() else WIDTH
         self.screen_height = pygame.display.get_surface().get_height() if pygame.display.get_surface() else HEIGHT
 
@@ -23,21 +18,17 @@ class MainCar:
         
         # Create collision rectangle
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
-        
-        # Movement flags
-        self.moving_left = False
-        self.moving_right = False
-        self.moving_up = False
-        self.moving_down = False
-    
+
     def update_road_boundaries(self):
-        """Calculate road boundaries based on screen size"""
-        border_percentage = 0.1
-        self.road_left_border = int(self.screen_width * border_percentage)
-        self.road_right_border = int(self.screen_width * border_percentage)
-    
+        b = int(self.screen_width * 0.1)
+        self.road_left_border = self.road_right_border = b
+
+    def _car_size(self):
+        road_w = self.screen_width - 2 * int(self.screen_width * 0.1)
+        w = max(60, min(int(road_w * 0.25), 250))
+        return w, int(w * 1.3)
+
     def load_car_image(self):
-        """Load the car image from assets folder and remove white background"""
         try:
             # Get the path to the assets folder
             current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -50,18 +41,12 @@ class MainCar:
             # Method 1: Aggressive pixel-by-pixel removal
             cleaned_surface = pygame.Surface(original.get_size(), pygame.SRCALPHA)
             cleaned_surface.fill((0, 0, 0, 0))  # Fill with transparent
-            
-            pixels_kept = 0
-            pixels_removed = 0
-            
             for x in range(original.get_width()):
                 for y in range(original.get_height()):
                     pixel = original.get_at((x, y))
                     r, g, b, a = pixel[0], pixel[1], pixel[2], pixel[3] if len(pixel) > 3 else 255
-                    
                     # Multiple conditions to detect background
                     is_background = False
-                    
                     # Pure white
                     if r >= 255 and g >= 255 and b >= 255:
                         is_background = True
@@ -77,52 +62,29 @@ class MainCar:
                     
                     if not is_background:
                         cleaned_surface.set_at((x, y), pixel)
-                        pixels_kept += 1
-                    else:
-                        pixels_removed += 1
-            
-            print(f"Pixels kept: {pixels_kept}, Pixels removed: {pixels_removed}")
-            
-            road_width = self.screen_width - (2 * int(self.screen_width * 0.1)) 
-            car_width = int(road_width * 0.25)
-            car_width = max(60, min(car_width, 250))  # Between 60-300 pixels
-            car_height = int(car_width * 1.3)  # Height is 1.3x width
-            
+            car_width, car_height = self._car_size()
             self.image = pygame.transform.scale(cleaned_surface, (car_width, car_height))
-            
-            # Get dimensions
-            self.width = car_width
-            self.height = car_height
-            
-            print(f"Road width: {road_width}, Car size: {car_width}x{car_height}")
-            
+            self.width, self.height = car_width, car_height
         except Exception as e:
             # Create a fallback rectangle if image loading fails
-            self.width = 60
-            self.height = 100
+            self.width, self.height = 60, 100
             self.image = None
             self.fallback_color = (255, 0, 0)  # Red color as fallback for debugging
     
+    # @staticmethod          check later
     def get_default_car_height():
         """Get default car height for initial positioning"""
-        # Get current screen dimensions
         screen_width = pygame.display.get_surface().get_width() if pygame.display.get_surface() else WIDTH
-        
-        # Calculate car dimensions using the same logic as load_car_image
-        road_width = screen_width - (2 * int(screen_width * 0.1))  # Total road width
-        car_width = int(road_width * 0.25)  # 25% of road width
-        
-        # Ensure reasonable size limits
-        car_width = max(60, min(car_width, 200))  # Between 60-300 pixels
-        car_height = int(car_width * 1.3)  # Height is 1.3x width
-        print(f"Default car size: {car_width}x{car_height}")
-        return car_height
+        road_width = screen_width - (2 * int(screen_width * 0.1))
+        #car_width and car_height
+        car_width = max(60, min(int(road_width * 0.25), 200))
+        return int(car_width * 1.3)
+
+    # @staticmethod          check later
     def get_default_car_width():
         screen_width = pygame.display.get_surface().get_width() if pygame.display.get_surface() else WIDTH
         road_width = screen_width - (2 * int(screen_width * 0.1))
-        car_width = int(road_width * 0.25)
-        car_width = max(60, min(car_width, 200))
-        return car_width
+        return max(60, min(int(road_width * 0.25), 200))
 
     def move_left(self):
         """Move car left with road boundary checking"""
@@ -130,20 +92,20 @@ class MainCar:
         if self.x > self.road_left_border:
             self.x -= self.speed
             self.rect.x = self.x
-    
+
     def move_right(self):
         """Move car right with road boundary checking"""
         # Road has borders, so we need to stay within the road area
         if self.x < self.screen_width - self.width - self.road_right_border:
             self.x += self.speed
             self.rect.x = self.x
-    
+
     def move_up(self):
         """Move car up with boundary checking"""
         if self.y > 0:
             self.y -= self.speed
             self.rect.y = self.y
-    
+
     def move_down(self):
         """Move car down with boundary checking"""
         if self.y < self.screen_height - self.height:
@@ -153,22 +115,11 @@ class MainCar:
     def update_screen_size(self, width, height):
         """Update screen dimensions when window is resized"""
         # Calculate current position as percentages of the old screen
-        old_width = self.screen_width
-        old_height = self.screen_height
-        
-        # For horizontal position: use ratio within the road area (handles different aspect ratios)
-        old_road_width = old_width - (2 * int(old_width * 0.1))  # Old road width
+        old_width, old_height = self.screen_width, self.screen_height
+        old_road_width = old_width - (2 * int(old_width * 0.1))
         car_center_x = self.x + getattr(self, 'width', 60) // 2
         old_left_border = int(old_width * 0.1)
-        
-        # Calculate position ratio within the road area (0.0 = left edge, 1.0 = right edge)
-        if old_road_width > 0:
-            x_ratio_in_road = (car_center_x - old_left_border) / old_road_width
-        else:
-            x_ratio_in_road = 0.5  # Center if road was too narrow
-        
-        # For vertical position: calculate relative position within available space
-        # This approach works for both top and bottom positioning
+        x_ratio_in_road = (car_center_x - old_left_border) / old_road_width if old_road_width > 0 else 0.5
         old_car_height = getattr(self, 'height', 100)
         
         # Calculate available space for car movement (screen height - car height)
@@ -182,14 +133,9 @@ class MainCar:
         
         # Clamp the ratio to valid range
         y_ratio = max(0.0, min(1.0, y_ratio))
-        
-        # Update screen dimensions
-        self.screen_width = width
-        self.screen_height = height
-        
+        self.screen_width, self.screen_height = width, height
         # Recalculate road boundaries for new screen size
         self.update_road_boundaries()
-        
         # Reload car image with new responsive size
         self.load_car_image()
         self.rect.size = (self.width, self.height)
@@ -197,18 +143,10 @@ class MainCar:
         new_road_width = self.screen_width - (2 * self.road_left_border)
         new_center_x = self.road_left_border + (x_ratio_in_road * new_road_width)
         self.x = int(new_center_x - self.width // 2)
-        
         # Calculate new vertical position using ratio
-        # Position within the available movement space
         new_available_space = self.screen_height - self.height
-        
-        if new_available_space > 0:
-            self.y = int(y_ratio * new_available_space)
-        else:
-            self.y = 0  # If screen too small, place at top
-        
+        self.y = int(y_ratio * new_available_space) if new_available_space > 0 else 0
         # Ensure car stays within valid boundaries
-        # Check horizontal boundaries (road area)
         min_x = self.road_left_border
         max_x = self.screen_width - self.road_right_border - self.width
         
@@ -234,16 +172,10 @@ class MainCar:
     def handle_input(self, keys):
         """Handle keyboard input for car movement"""
         # Check for key presses and move accordingly
-        if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-            self.move_left()
-            self.moving_left = True
-        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-            self.move_right()
-            self.moving_right = True
-        if keys[pygame.K_UP] or keys[pygame.K_w]:
-            self.move_up()
-        if keys[pygame.K_DOWN] or keys[pygame.K_s]:
-            self.move_down()
+        if keys[pygame.K_LEFT] or keys[pygame.K_a]: self.move_left()
+        if keys[pygame.K_RIGHT] or keys[pygame.K_d]: self.move_right()
+        if keys[pygame.K_UP] or keys[pygame.K_w]: self.move_up()
+        if keys[pygame.K_DOWN] or keys[pygame.K_s]: self.move_down()
     
     def update_position(self):
         """Update the collision rectangle position"""
@@ -271,24 +203,23 @@ class MainCar:
     def get_rect(self):
         """Return the collision rectangle"""
         return self.rect
-    
+
     def get_center(self):
         """Get the center position of the car"""
         return (self.x + self.width // 2, self.y + self.height // 2)
-    
+
     def set_position(self, x, y):
         """Set the car position"""
-        self.x = x
-        self.y = y
+        self.x, self.y = x, y
         self.update_position()
-    
+
     def change_car(self, car_number):
         """Change to a different car model"""
         if 3 <= car_number <= 5:
             self.car_number = car_number
             self.load_car_image()
             print(f"Changed to car{car_number}.png")
-    
+
     def get_info(self):
         """Get car information"""
         return {
