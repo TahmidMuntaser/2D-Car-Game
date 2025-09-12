@@ -6,6 +6,7 @@ from enemy_car import EnemyCar
 from game_over import show_game_over
 from initial_window import show_main_menu  # Menu screen
 from score import Score
+from collision import check_collision
 
 
 def start_game(selected_car=3):
@@ -87,30 +88,17 @@ def start_game(selected_car=3):
         
         # Draw text
         screen.blit(score_text, (30, 20))
-
-
-        # Check for collisions
-        inflate_w = int(car.width * 0.45)
-        inflate_h = int(car.height * 0.05)
-        main_rect = car.get_rect().inflate(-inflate_w, -inflate_h)
-
-        inflate_w_enemy = int(enemy_car.width * 0.45)
-        inflate_h_enemy = int(enemy_car.height * 0.05)
-        enemy_rect = enemy_car.get_rect().inflate(-inflate_w_enemy, -inflate_h_enemy)
-
-        # pygame.draw.rect(screen, (255, 0, 0), main_rect, 2)
-        # pygame.draw.rect(screen, (0, 255, 0), enemy_rect, 2)
-
-        if main_rect.colliderect(enemy_rect):
-            # print("💥 Collision detected!")
+        
+        # Collision check 
+        if check_collision(screen, car, enemy_car, draw_debug=True):
             game_over_result = show_game_over(screen, road, car, enemy_car, car_start_x, car_start_y, score.get_score())
-            
+
             if game_over_result == "retry":
-                score.reset()  # restart game
+                score.reset()
             elif game_over_result == "menu":
-                return True     # back to main menu
+                return True
             else:
-                return False    # quit
+                return False
 
         pygame.display.flip()
 
