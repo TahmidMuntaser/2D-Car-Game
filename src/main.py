@@ -70,12 +70,13 @@ def start_game(selected_car=3):
         
         # Score update
         score.update()
-
+        
+        
         # Draw everything
         road.move()
         road.draw(screen)
         car.draw(screen)
-        enemy_car.move()
+        enemy_car.move(score.get_score())
         enemy_car.draw(screen)
         
         # Draw score text

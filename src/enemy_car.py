@@ -55,6 +55,7 @@ class EnemyCar:
             car_height = int(car_width * 1.3)
             
             self.image = pygame.transform.scale(cleaned_surface, (car_width, car_height))
+            self.image = pygame.transform.rotate(self.image, 180)
             self.width = car_width
             self.height = car_height
             # self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
@@ -64,23 +65,37 @@ class EnemyCar:
             self.width = 60
             self.height = 100
             self.fallback_color = (0, 255, 0)
+            
+    def update_speed(self, score):
+       
+        if score < 10:
+            self.speed = random.randint(4, 6)
+        elif score < 20:
+            self.speed = random.randint(5, 7)
+        elif score < 35:
+            self.speed = random.randint(7, 9)
+        else:
+            self.speed = random.randint(9, 12)
         
     
-    # car spawn    
-    def spawn(self):
+    def spawn(self, score=0):
         road_width = self.screen_width - (self.road_left_border + self.road_right_border)
         self.x = random.randint(self.road_left_border, self.road_left_border + road_width - self.width)
         self.y = -self.height
-        self.rect = pygame.Rect(self.x, self.y, self.width, self.height) #collision rectangle
+        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
+
+        # set speed based on score
+        self.update_speed(score)
+
         
         
         
-    def move(self):
+    def move(self, score=0):
         self.y += self.speed
         self.rect.y = self.y
         if self.y > self.screen_height:
-            self.spawn()
-    
+            self.spawn(score) 
+        
     
     def draw(self, screen):
         if self.image:
@@ -115,4 +130,5 @@ class EnemyCar:
         
     def get_rect(self):
         return self.rect
+
 
