@@ -20,7 +20,7 @@ class Button:
 
     def update_rect(self, win_width, win_height):
         """Update button rect based on current window size and percentages."""
-        w, h = int(min(200,self.w_perc * win_width)), int(min(45,self.h_perc * win_height))
+        w, h = int(min(250,self.w_perc * win_width)), int(min(50,self.h_perc * win_height))
         x, y = int(self.x_perc * win_width - w // 2), int(self.y_perc * win_height - h // 2)
         self.rect = pygame.Rect(x, y, w, h)
         self.font = pygame.font.Font(None, max(20, int(self.h_perc * win_height * 0.5)))
@@ -122,11 +122,11 @@ class InitialWindow:
         self.buttons = {}
         # Main menu buttons (centered, stacked vertically)
         menu_specs = [
-            ("New Game",      0.5, 0.35, 0.35, 0.09, self.button_color, self.button_hover_color),
-            ("Change Car",    0.5, 0.45, 0.35, 0.09, self.button_color, self.button_hover_color),
-            ("Highest Score", 0.5, 0.55, 0.35, 0.09, self.button_color, self.button_hover_color),
-            ("Instructions",  0.5, 0.65, 0.35, 0.09, self.button_color, self.button_hover_color),
-            ("Quit",          0.5, 0.75, 0.35, 0.09, (180,70,70), (200,90,90)),
+            ("New Game",      0.5, 0.36, 0.3, 0.09, self.button_color, self.button_hover_color),
+            ("Change Car",    0.5, 0.47, 0.3, 0.09, self.button_color, self.button_hover_color),
+            ("Highest Score", 0.5, 0.58, 0.3, 0.09, self.button_color, self.button_hover_color),
+            ("Instructions",  0.5, 0.69, 0.3, 0.09, self.button_color, self.button_hover_color),
+            ("Quit",          0.5, 0.80, 0.3, 0.09, (180,70,70), (200,90,90)),
         ]
         for name, x, y, w, h, c, hc in menu_specs:
             self.buttons[name.lower().replace(" ", "_")] = Button(
@@ -212,6 +212,59 @@ class InitialWindow:
         # ESC instruction
         esc_text = small_font.render("Press ESC to return to main menu", True, (150, 150, 150))
         esc_rect = esc_text.get_rect(center=(self.window_width // 2, esc_y))
+        self.screen.blit(esc_text, esc_rect)
+
+    def draw_highest_score(self):
+        """Draw the highest score screen with a reset button"""
+        self.draw_background()
+        title_font = pygame.font.Font(None, max(56, int(self.window_height * 0.1)))
+        score_font = pygame.font.Font(None, max(48, int(self.window_height * 0.08)))
+        small_font = pygame.font.Font(None, max(24, int(self.window_height * 0.04)))
+
+        # Title
+        title = title_font.render("HIGHEST SCORE", True, self.text_color)
+        self.screen.blit(title, title.get_rect(center=(self.window_width // 2, self.window_height // 2.5)))
+
+        # Load high score from file
+        try:
+            with open("highscore.txt", "r") as f:
+                highscore = int(f.read().strip())
+        except Exception:
+            highscore = 0
+
+        # Draw a highlighted box for the score
+        score_str = f"{highscore}"
+        score_text = score_font.render(score_str, True, (30, 30, 30))
+        score_rect = score_text.get_rect(center=(self.window_width // 2, self.window_height // 2))
+
+        # Padding for the box
+        pad_x, pad_y = 40, 20
+        box_rect = pygame.Rect(
+            score_rect.left - pad_x // 2,
+            score_rect.top - pad_y // 2,
+            score_rect.width + pad_x,
+            score_rect.height + pad_y
+        )
+
+        # Draw the box (rounded if pygame 2.0+, else normal rect)
+        if hasattr(pygame.draw, "rect") and hasattr(pygame.draw, "rect"):
+            pygame.draw.rect(self.screen, (255, 140, 0), box_rect, border_radius=15)
+            
+        else:
+            pygame.draw.rect(self.screen, (255, 215, 0), box_rect)
+
+        # Optional: white border
+        pygame.draw.rect(self.screen, (255, 255, 255), box_rect, 2, border_radius=15)
+
+        # Draw the score text on top
+        self.screen.blit(score_text, score_rect)
+
+        # Draw Reset button
+        self.buttons['reset_highscore'].draw(self.screen)
+
+        # ESC instruction
+        esc_text = small_font.render("Press ESC to return to main menu", True, (150, 150, 150))
+        esc_rect = esc_text.get_rect(center=(self.window_width // 2, self.window_height - 50))
         self.screen.blit(esc_text, esc_rect)
     
     def draw_instructions(self):
@@ -307,34 +360,6 @@ class InitialWindow:
             self.screen.blit(text_surface, text_surface.get_rect(center=(self.window_width // 2, cur_y)))
             cur_y += line_spacing
 
-    def draw_highest_score(self):
-        """Draw the highest score screen with a reset button"""
-        self.draw_background()
-        title_font = pygame.font.Font(None, max(48, int(self.window_height * 0.08)))
-        score_font = pygame.font.Font(None, max(36, int(self.window_height * 0.06)))
-        small_font = pygame.font.Font(None, max(24, int(self.window_height * 0.04)))
-
-        # Title
-        title = title_font.render("HIGHEST SCORE", True, self.text_color)
-        self.screen.blit(title, title.get_rect(center=(self.window_width // 2, self.window_height // 5)))
-
-        # Load high score from file
-        try:
-            with open("highscore.txt", "r") as f:
-                highscore = int(f.read().strip())
-        except Exception:
-            highscore = 0
-
-        score_text = score_font.render(f"{highscore}", True, (255, 215, 0))
-        self.screen.blit(score_text, score_text.get_rect(center=(self.window_width // 2, self.window_height // 2)))
-
-        # Draw Reset button
-        self.buttons['reset_highscore'].draw(self.screen)
-
-        # ESC instruction
-        esc_text = small_font.render("Press ESC to return to main menu", True, (150, 150, 150))
-        esc_rect = esc_text.get_rect(center=(self.window_width // 2, self.window_height - 50))
-        self.screen.blit(esc_text, esc_rect)
 
     def handle_events(self):
         """Handle all events"""
