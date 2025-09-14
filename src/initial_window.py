@@ -3,25 +3,38 @@ import os
 from config import WIDTH, HEIGHT
 
 class Button:
-    """A simple button class for the menu"""
-    
-    def __init__(self, x, y, width, height, text, color, text_color, hover_color):
-        self.rect = pygame.Rect(x, y, width, height)
-        self.text, self.color, self.text_color, self.hover_color = text, color, text_color, hover_color
+    """
+    A responsive button class for the menu.
+    Position and size are given as percentages (0.0 - 1.0) of the window size.
+    """
+    def __init__(self, label, x_perc, y_perc, w_perc, h_perc, 
+                 color, text_color, hover_color, font_size=36):
+        self.label = label
+        self.x_perc, self.y_perc = x_perc, y_perc
+        self.w_perc, self.h_perc = w_perc, h_perc
+        self.color, self.text_color, self.hover_color = color, text_color, hover_color
+        self.font_size = font_size
         self.is_hovered = False
-        self.font = pygame.font.Font(None, 36)
-        
+        self.rect = pygame.Rect(0, 0, 0, 0)  # Will be set in update_rect
+        self.font = pygame.font.Font(None, self.font_size)
+
+    def update_rect(self, win_width, win_height):
+        """Update button rect based on current window size and percentages."""
+        w, h = int(self.w_perc * win_width), int(self.h_perc * win_height)
+        x, y = int(self.x_perc * win_width - w // 2), int(self.y_perc * win_height - h // 2)
+        self.rect = pygame.Rect(x, y, w, h)
+        self.font = pygame.font.Font(None, max(20, int(self.h_perc * win_height * 0.5)))
+
     def draw(self, screen):
-        """Draw the button on screen"""
+        """Draw the button on screen."""
         color = self.hover_color if self.is_hovered else self.color
         pygame.draw.rect(screen, color, self.rect)
         pygame.draw.rect(screen, (255, 255, 255), self.rect, 3)  # White border
-        # Render text
-        text_surface = self.font.render(self.text, True, self.text_color)
+        text_surface = self.font.render(self.label, True, self.text_color)
         screen.blit(text_surface, text_surface.get_rect(center=self.rect.center))
     
     def handle_event(self, event):
-        """Handle mouse events for the button"""
+        """Handle mouse events for the button."""
         if event.type == pygame.MOUSEMOTION:
             self.is_hovered = self.rect.collidepoint(event.pos)
         elif event.type == pygame.MOUSEBUTTONDOWN and self.rect.collidepoint(event.pos):
@@ -96,72 +109,31 @@ class InitialWindow:
         self.create_buttons()
         
     def create_buttons(self):
-        """Create menu buttons with optimized positioning"""
-        # Responsive button sizing
-        button_width = min(250, int(self.window_width * 0.35))  # Max 250px, 35% of screen width
-        button_height = max(50, int(self.window_height * 0.08))  # Min 50px, 8% of screen height
-        button_spacing = max(15, int(self.window_height * 0.025))  # Min 15px, 2.5% of screen height
-        
-        # Center buttons vertically, starting a bit above center
-        total_buttons = 4  # new_game, change_car, instructions, quit
-        total_height = (total_buttons * button_height) + ((total_buttons - 1) * button_spacing)
-        start_y = (self.window_height - total_height) // 2 + int(self.window_height * 0.1)
-        
+        """Create menu buttons using percentage-based positioning and sizing."""
         self.buttons = {}
-        
-        # Main menu buttons
-        self.buttons['new_game'] = Button(
-            self.window_width // 2 - button_width // 2, start_y,
-            button_width, button_height, "New Game",
-            self.button_color, self.text_color, self.button_hover_color
-        )
-        
-        self.buttons['change_car'] = Button(
-            self.window_width // 2 - button_width // 2, start_y + button_height + button_spacing,
-            button_width, button_height, "Change Car",
-            self.button_color, self.text_color, self.button_hover_color
-        )
-        
-        self.buttons['instructions'] = Button(
-            self.window_width // 2 - button_width // 2, start_y + 2 * (button_height + button_spacing),
-            button_width, button_height, "Instructions",
-            self.button_color, self.text_color, self.button_hover_color
-        )
-        
-        self.buttons['quit'] = Button(
-            self.window_width // 2 - button_width // 2, start_y + 3 * (button_height + button_spacing),
-            button_width, button_height, "Quit",
-            (180, 70, 70), self.text_color, (200, 90, 90)  # Red color for quit
-        )
-        
+        # Main menu buttons (centered, stacked vertically)
+        menu_specs = [
+            ("New Game",      0.5, 0.38, 0.35, 0.09, self.button_color, self.button_hover_color),
+            ("Change Car",    0.5, 0.50, 0.35, 0.09, self.button_color, self.button_hover_color),
+            ("Instructions",  0.5, 0.62, 0.35, 0.09, self.button_color, self.button_hover_color),
+            ("Quit",          0.5, 0.74, 0.35, 0.09, (180,70,70), (200,90,90)),
+        ]
+        for name, x, y, w, h, c, hc in menu_specs:
+            self.buttons[name.lower().replace(" ", "_")] = Button(
+                name, x, y, w, h, c, self.text_color, hc
+            )
         # Car selection buttons
-        car_button_width = 150
-        car_button_height = 40
-        car_y = self.window_height // 2 + 60
-        
-        self.buttons['prev_car'] = Button(
-            self.window_width // 2 - 200, car_y,
-            car_button_width, car_button_height, "Previous",
-            self.button_color, self.text_color, self.button_hover_color
-        )
-        
-        self.buttons['next_car'] = Button(
-            self.window_width // 2 + 50, car_y,
-            car_button_width, car_button_height, "Next",
-            self.button_color, self.text_color, self.button_hover_color
-        )
-        
-        # Select car button - positioned below the car preview with responsive sizing
-        select_button_width = min(200, int(self.window_width * 0.3))
-        select_button_height = max(45, int(self.window_height * 0.06))
-        select_car_y = car_y + car_button_height + max(30, int(self.window_height * 0.04)) + 50
-        
-        self.buttons['select_car'] = Button(
-            self.window_width // 2 - select_button_width // 2, select_car_y,
-            select_button_width, select_button_height, "Select the Car",
-            (70, 180, 70), self.text_color, (90, 200, 90)  # Green color for select
-        )
-    
+        self.buttons['prev_car'] = Button("Previous", 0.32, 0.60, 0.18, 0.07, self.button_color, self.text_color, self.button_hover_color)
+        self.buttons['next_car'] = Button("Next", 0.68, 0.60, 0.18, 0.07, self.button_color, self.text_color, self.button_hover_color)
+        self.buttons['select_car'] = Button("Select the Car", 0.5, 0.75, 0.28, 0.08, (70,180,70), self.text_color, (90,200,90))
+        # Update all button rects for current window size
+        self.update_button_rects()
+
+    def update_button_rects(self):
+        """Update all button rects for current window size."""
+        for btn in self.buttons.values():
+            btn.update_rect(self.window_width, self.window_height)
+
     def draw_background(self):
         """Draw animated background"""
         self.screen.fill(self.bg_color)
@@ -175,9 +147,9 @@ class InitialWindow:
         """Draw the game title"""
         title_text = self.title_font.render("2D CAR GAME", True, self.text_color)
         #
-        self.screen.blit(title_text, title_text.get_rect(center=(self.window_width // 2, self.window_height // 4)))
+        self.screen.blit(title_text, title_text.get_rect(center=(self.window_width // 2, self.window_height // 5)))
         subtitle_text = self.subtitle_font.render("Drive and Survive!", True, (200, 200, 200))
-        self.screen.blit(subtitle_text, subtitle_text.get_rect(center=(self.window_width // 2, self.window_height // 4 + 50)))
+        self.screen.blit(subtitle_text, subtitle_text.get_rect(center=(self.window_width // 2, self.window_height // 5 + 50)))
     
     def draw_main_menu(self):
         self.draw_background()
@@ -332,7 +304,7 @@ class InitialWindow:
                 # Handle window resize
                 self.window_width, self.window_height = event.size
                 self.screen = pygame.display.set_mode((self.window_width, self.window_height), pygame.RESIZABLE)
-                self.create_buttons()  # Recreate buttons for new size
+                self.update_button_rects()
                 self.car_preview = CarPreview(self.window_width // 2 - 40, self.window_height // 2 - 100)
             
             # Handle ESC key - return to main menu from any sub-screen
@@ -397,7 +369,7 @@ class InitialWindow:
             self.clock.tick(60)
         
         if self.start_game:
-            return self.selected_car  # Return selected car number for the game
+            return self.selected_car  # Return self.selected_car car number for the game
         elif self.quit_game:
             return None  # Return None to indicate user wants to quit
         else:
