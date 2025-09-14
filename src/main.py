@@ -26,7 +26,7 @@ def start_game(selected_car=3):
     
     # Now calculate proper starting position based on actual car size after initialization
     car_start_x = (current_width - car.width) // 2
-    car_start_y = current_height - car.height - 10  # 10px margin from bottom
+    car_start_y = current_height - car.height
     
     # Set the car to the correct position
     car.set_position(car_start_x, car_start_y)
@@ -51,16 +51,9 @@ def start_game(selected_car=3):
                 enemy_car.update_screen_size(current_width, current_height)
                 # Update car start position for when game over occurs
                 car_start_x = (current_width - car.width) // 2
-                car_start_y = current_height - car.height - 10
+                car_start_y = current_height - car.height
             elif i.type == pygame.KEYDOWN:
-                # Change car model with number keys
-                if i.key == pygame.K_1:
-                    car.change_car(3)
-                elif i.key == pygame.K_2:
-                    car.change_car(4)
-                elif i.key == pygame.K_3:
-                    car.change_car(5)
-                elif i.key == pygame.K_ESCAPE:
+                if i.key == pygame.K_ESCAPE:
                     return True  # Return to main menu
 
         # Handle car input
