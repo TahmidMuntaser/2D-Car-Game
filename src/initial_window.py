@@ -76,7 +76,7 @@ class CarPreview:
 
 class InitialWindow:
     """Main menu window for the 2D Car Game"""
-    def __init__(self):
+    def __init__(self, initial_car=3):
         pygame.init()
         # Get current screen size or use defaults
         current_surface = pygame.display.get_surface()
@@ -98,7 +98,8 @@ class InitialWindow:
         self.subtitle_font = pygame.font.Font(None, 36)
         
         # Game state
-        self.selected_car = 3
+        self.selected_car = initial_car        # Use passed car number
+        self.preview_car = initial_car         # Use passed car number
         self.show_options = False
         self.running = True
         self.start_game = False
@@ -162,7 +163,7 @@ class InitialWindow:
         title_font = pygame.font.Font(None, title_size)
         title_text = title_font.render("SELECT YOUR CAR", True, self.text_color)
         self.screen.blit(title_text, title_text.get_rect(center=(self.window_width // 2, self.window_height // 5)))
-        self.car_preview.current_car = self.selected_car
+        self.car_preview.current_car = self.preview_car  # Use preview_car for preview
         self.car_preview.draw(self.screen)
         
         # Car selection buttons
@@ -175,25 +176,25 @@ class InitialWindow:
         small_font = pygame.font.Font(None, small_text_size)
         
         # Split long instruction text if needed
-        instruction_y = self.window_height // 2 + 140
+        instruction_y = self.window_height // 2 + self.window_height // 6
         
-        if self.window_width < 600:
-            # For smaller screens, split the instruction into two lines
-            instruction_text1 = instruction_font.render("Use Previous/Next buttons", True, (200, 200, 200))
-            instruction_text2 = instruction_font.render("or Arrow Keys to choose your car", True, (200, 200, 200))
+        # if self.window_width < 600:
+        #     # For smaller screens, split the instruction into two lines
+        #     instruction_text1 = instruction_font.render("Use Previous/Next buttons", True, (200, 200, 200))
+        #     instruction_text2 = instruction_font.render("or Arrow Keys to choose your car", True, (200, 200, 200))
             
-            instruction_rect1 = instruction_text1.get_rect(center=(self.window_width // 2, instruction_y))
-            instruction_rect2 = instruction_text2.get_rect(center=(self.window_width // 2, instruction_y + instruction_size + 5))
+        #     instruction_rect1 = instruction_text1.get_rect(center=(self.window_width // 2, instruction_y))
+        #     instruction_rect2 = instruction_text2.get_rect(center=(self.window_width // 2, instruction_y + instruction_size + 5))
             
-            self.screen.blit(instruction_text1, instruction_rect1)
-            self.screen.blit(instruction_text2, instruction_rect2)
-            esc_y = instruction_y + (instruction_size + 5) * 2 + 10
-        else:
+        #     self.screen.blit(instruction_text1, instruction_rect1)
+        #     self.screen.blit(instruction_text2, instruction_rect2)
+        #     esc_y = instruction_y + (instruction_size + 5) * 2 + 10
+        # else:
             # For larger screens, keep it on one line
-            instruction_text = instruction_font.render("Use Previous/Next or Arrow Keys to choose your car", True, (200, 200, 200))
-            instruction_rect = instruction_text.get_rect(center=(self.window_width // 2, instruction_y))
-            self.screen.blit(instruction_text, instruction_rect)
-            esc_y = self.screen.get_height() - 50
+        instruction_text = instruction_font.render("Use Previous/Next or Arrow Keys to choose your car", True, (200, 200, 200))
+        instruction_rect = instruction_text.get_rect(center=(self.window_width // 2, instruction_y))
+        self.screen.blit(instruction_text, instruction_rect)
+        esc_y = self.screen.get_height() - 50
         
         # ESC instruction
         esc_text = small_font.render("Press ESC to return to main menu", True, (150, 150, 150))
@@ -335,26 +336,21 @@ class InitialWindow:
         """Handle car selection events"""
         # Handle button clicks
         if self.buttons['prev_car'].handle_event(event):
-            self.selected_car = max(3, self.selected_car - 1)
+            self.preview_car = max(3, self.preview_car - 1)
         elif self.buttons['next_car'].handle_event(event):
-            self.selected_car = min(5, self.selected_car + 1)
+            self.preview_car = min(5, self.preview_car + 1)
         elif self.buttons['select_car'].handle_event(event):
-            # User selected a car, return to main menu
+            # Only now set the selected car
+            self.selected_car = self.preview_car
             self.show_options = False
         
         # Handle arrow keys
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT:  # Left arrow - previous car
-                self.selected_car = max(3, self.selected_car - 1)
-            elif event.key == pygame.K_RIGHT:  # Right arrow - next car
-                self.selected_car = min(5, self.selected_car + 1)
-    
-    def handle_instructions_events(self, event):
-        """Handle instructions events - ESC key handled globally"""
-        # No specific event handling needed for instructions screen
-        # ESC key is handled globally in handle_events method
-        pass
-    
+            if event.key == pygame.K_LEFT:
+                self.preview_car = max(3, self.preview_car - 1)
+            elif event.key == pygame.K_RIGHT:
+                self.preview_car = min(5, self.preview_car + 1)
+
     def run(self):
         """Run the main menu"""
         while self.running:
@@ -369,15 +365,15 @@ class InitialWindow:
             self.clock.tick(60)
         
         if self.start_game:
-            return self.selected_car  # Return self.selected_car car number for the game
+            return self.selected_car  # Now returns only the selected car
         elif self.quit_game:
             return None  # Return None to indicate user wants to quit
         else:
             return False  # Return False to indicate no car selected
 
-def show_main_menu():
+def show_main_menu(initial_car=3):
     """Show the main menu and return the selected car number"""
-    menu = InitialWindow()
+    menu = InitialWindow(initial_car)
     return menu.run()
 
 if __name__ == "__main__": show_main_menu()
