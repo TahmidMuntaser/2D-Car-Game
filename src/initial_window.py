@@ -20,7 +20,7 @@ class Button:
 
     def update_rect(self, win_width, win_height):
         """Update button rect based on current window size and percentages."""
-        w, h = int(self.w_perc * win_width), int(self.h_perc * win_height)
+        w, h = int(min(200,self.w_perc * win_width)), int(min(45,self.h_perc * win_height))
         x, y = int(self.x_perc * win_width - w // 2), int(self.y_perc * win_height - h // 2)
         self.rect = pygame.Rect(x, y, w, h)
         self.font = pygame.font.Font(None, max(20, int(self.h_perc * win_height * 0.5)))
@@ -122,10 +122,11 @@ class InitialWindow:
         self.buttons = {}
         # Main menu buttons (centered, stacked vertically)
         menu_specs = [
-            ("New Game",      0.5, 0.38, 0.35, 0.09, self.button_color, self.button_hover_color),
-            ("Change Car",    0.5, 0.50, 0.35, 0.09, self.button_color, self.button_hover_color),
-            ("Instructions",  0.5, 0.62, 0.35, 0.09, self.button_color, self.button_hover_color),
-            ("Quit",          0.5, 0.74, 0.35, 0.09, (180,70,70), (200,90,90)),
+            ("New Game",      0.5, 0.35, 0.35, 0.09, self.button_color, self.button_hover_color),
+            ("Change Car",    0.5, 0.45, 0.35, 0.09, self.button_color, self.button_hover_color),
+            ("Highest Score", 0.5, 0.55, 0.35, 0.09, self.button_color, self.button_hover_color),
+            ("Instructions",  0.5, 0.65, 0.35, 0.09, self.button_color, self.button_hover_color),
+            ("Quit",          0.5, 0.75, 0.35, 0.09, (180,70,70), (200,90,90)),
         ]
         for name, x, y, w, h, c, hc in menu_specs:
             self.buttons[name.lower().replace(" ", "_")] = Button(
@@ -135,6 +136,11 @@ class InitialWindow:
         self.buttons['prev_car'] = Button("Previous", 0.32, 0.60, 0.18, 0.07, self.button_color, self.text_color, self.button_hover_color)
         self.buttons['next_car'] = Button("Next", 0.68, 0.60, 0.18, 0.07, self.button_color, self.text_color, self.button_hover_color)
         self.buttons['select_car'] = Button("Select the Car", 0.5, 0.75, 0.28, 0.08, (70,180,70), self.text_color, (90,200,90))
+        # Reset high score button (initially hidden)
+        self.buttons['reset_highscore'] = Button(
+            "Reset", 0.5, 0.65, 0.22, 0.08, (180,70,70), self.text_color, (200,90,90)
+        )
+        self.buttons['reset_highscore'].rect.y = self.window_height  # Position off-screen initially
         # Update all button rects for current window size
         self.update_button_rects()
 
@@ -155,7 +161,6 @@ class InitialWindow:
     def draw_title(self):
         """Draw the game title"""
         title_text = self.title_font.render("2D CAR GAME", True, self.text_color)
-        #
         self.screen.blit(title_text, title_text.get_rect(center=(self.window_width // 2, self.window_height // 5)))
         subtitle_text = self.subtitle_font.render("Drive and Survive!", True, (200, 200, 200))
         self.screen.blit(subtitle_text, subtitle_text.get_rect(center=(self.window_width // 2, self.window_height // 5 + 50)))
@@ -163,7 +168,7 @@ class InitialWindow:
     def draw_main_menu(self):
         self.draw_background()
         self.draw_title()
-        for btn in ['new_game', 'change_car', 'instructions', 'quit']: self.buttons[btn].draw(self.screen)
+        for btn in ['new_game', 'change_car', 'highest_score', 'instructions', 'quit']: self.buttons[btn].draw(self.screen)
     
     def draw_car_selection(self):
         self.draw_background()
@@ -302,6 +307,35 @@ class InitialWindow:
             self.screen.blit(text_surface, text_surface.get_rect(center=(self.window_width // 2, cur_y)))
             cur_y += line_spacing
 
+    def draw_highest_score(self):
+        """Draw the highest score screen with a reset button"""
+        self.draw_background()
+        title_font = pygame.font.Font(None, max(48, int(self.window_height * 0.08)))
+        score_font = pygame.font.Font(None, max(36, int(self.window_height * 0.06)))
+        small_font = pygame.font.Font(None, max(24, int(self.window_height * 0.04)))
+
+        # Title
+        title = title_font.render("HIGHEST SCORE", True, self.text_color)
+        self.screen.blit(title, title.get_rect(center=(self.window_width // 2, self.window_height // 5)))
+
+        # Load high score from file
+        try:
+            with open("highscore.txt", "r") as f:
+                highscore = int(f.read().strip())
+        except Exception:
+            highscore = 0
+
+        score_text = score_font.render(f"{highscore}", True, (255, 215, 0))
+        self.screen.blit(score_text, score_text.get_rect(center=(self.window_width // 2, self.window_height // 2)))
+
+        # Draw Reset button
+        self.buttons['reset_highscore'].draw(self.screen)
+
+        # ESC instruction
+        esc_text = small_font.render("Press ESC to return to main menu", True, (150, 150, 150))
+        esc_rect = esc_text.get_rect(center=(self.window_width // 2, self.window_height - 50))
+        self.screen.blit(esc_text, esc_rect)
+
     def handle_events(self):
         """Handle all events"""
         for event in pygame.event.get():
@@ -324,6 +358,7 @@ class InitialWindow:
             
             # Handle button clicks based on current state
             if self.show_options == "car_selection": self.handle_car_selection_events(event)
+            elif self.show_options == "highest_score": self.handle_highest_score_events(event)
             elif self.show_options != "instructions":  # Only handle main menu if not in instructions
                 self.handle_main_menu_events(event)
     
@@ -334,6 +369,8 @@ class InitialWindow:
             self.running = False
         elif self.buttons['change_car'].handle_event(event):
             self.show_options = "car_selection"
+        elif self.buttons['highest_score'].handle_event(event):
+            self.show_options = "highest_score"
         elif self.buttons['instructions'].handle_event(event):
             self.show_options = "instructions"
         elif self.buttons['quit'].handle_event(event):
@@ -358,6 +395,13 @@ class InitialWindow:
         #     elif event.key == pygame.K_RIGHT:
         #         self.preview_car = min(5, self.preview_car + 1)
 
+    def handle_highest_score_events(self, event):
+        if self.buttons['reset_highscore'].handle_event(event):
+            # Reset high score file
+            with open("highscore.txt", "w") as f:
+                f.write("0")
+                # self.show_options = False
+
     def run(self):
         """Run the main menu"""
         while self.running:
@@ -366,6 +410,7 @@ class InitialWindow:
             # Draw current screen
             if self.show_options == "car_selection": self.draw_car_selection()
             elif self.show_options == "instructions": self.draw_instructions()
+            elif self.show_options == "highest_score": self.draw_highest_score()
             else: self.draw_main_menu()
 
             pygame.display.flip()
