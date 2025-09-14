@@ -20,7 +20,7 @@ class Button:
 
     def update_rect(self, win_width, win_height):
         """Update button rect based on current window size and percentages."""
-        w, h = int(self.w_perc * win_width), int(self.h_perc * win_height)
+        w, h = int(min(180,self.w_perc * win_width)), int(min(50,self.h_perc * win_height))
         x, y = int(self.x_perc * win_width - w // 2), int(self.y_perc * win_height - h // 2)
         self.rect = pygame.Rect(x, y, w, h)
         self.font = pygame.font.Font(None, max(20, int(self.h_perc * win_height * 0.5)))
