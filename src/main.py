@@ -106,9 +106,10 @@ def start_game(selected_car=3):
 
 def main():
     pygame.init()
+    last_car = 3
     while True:
         # Show main menu and get selected car
-        selected_car = show_main_menu()
+        selected_car = show_main_menu(last_car)
         if selected_car is None:
             # User quit from menu
             break
@@ -121,6 +122,7 @@ def main():
             if not return_to_menu:
                 # User quit from game
                 break
+            last_car = selected_car  # Remember the last selected car
     pygame.quit()
 
 if __name__ == "__main__":
