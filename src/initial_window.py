@@ -52,11 +52,13 @@ class CarPreview:
         """Load preview images for cars"""
         try:
             current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            car_size_x = min(120,pygame.display.get_surface().get_width() * 0.15)
+            car_size_y = min(150, pygame.display.get_surface().get_width() * 0.15 * 1.25)
             for car_num in range(3, 6):  # Cars 3, 4, 5
                 assets_path = os.path.join(current_dir, "assets", f"car{car_num}.png")
                 if os.path.exists(assets_path):
                     original = pygame.image.load(assets_path).convert_alpha()
-                    self.car_images[car_num] = pygame.transform.scale(original, (80, 100))
+                    self.car_images[car_num] = pygame.transform.scale(original, (car_size_x, car_size_y))
         except Exception as e:
             print(f"Error loading car images: {e}")
             colors = {3: (255, 0, 0), 4: (0, 255, 0), 5: (0, 0, 255)}
@@ -66,13 +68,19 @@ class CarPreview:
                 self.car_images[car_num] = surface
     
     def draw(self, screen):
-        """Draw car preview"""
+        """Draw car preview with responsive size and position"""
+        win_w, win_h = screen.get_width(), screen.get_height()
+        car_size_x = int(min(120, win_w * 0.15))
+        car_size_y = int(min(150, win_w * 0.15 * 1.25))
         if self.current_car in self.car_images:
-            screen.blit(self.car_images[self.current_car], (self.x, self.y))
-        font_size = max(24, min(40, int(screen.get_height() * 0.04)))
-        font = pygame.font.Font(None, font_size)
-        text = font.render(f"Car {self.current_car}", True, (255, 255, 255))
-        screen.blit(text, text.get_rect(center=(self.x + 40, self.y + 120)))
+            # Always scale at draw time for correct size
+            img = pygame.transform.smoothscale(self.car_images[self.current_car], (car_size_x, car_size_y))
+            screen.blit(img, (win_w // 2 - car_size_x // 2, win_h // 2-car_size_y))
+        # # Draw car label below the car
+        # font_size = max(24, min(40, int(win_h * 0.04)))
+        # font = pygame.font.Font(None, font_size)
+        # text = font.render(f"Car {self.current_car}", True, (255, 255, 255))
+        # screen.blit(text, text.get_rect(center=(win_w // 2, win_h // 2 + car_size_y // 2 + font_size)))
 
 class InitialWindow:
     """Main menu window for the 2D Car Game"""
@@ -329,27 +337,26 @@ class InitialWindow:
         elif self.buttons['instructions'].handle_event(event):
             self.show_options = "instructions"
         elif self.buttons['quit'].handle_event(event):
-            self.quit_game = True
             self.running = False  # Quit the game
 
     def handle_car_selection_events(self, event):
         """Handle car selection events"""
         # Handle button clicks
-        if self.buttons['prev_car'].handle_event(event):
+        if self.buttons['prev_car'].handle_event(event) or (event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT):
             self.preview_car = max(3, self.preview_car - 1)
-        elif self.buttons['next_car'].handle_event(event):
+        elif self.buttons['next_car'].handle_event(event) or (event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT):
             self.preview_car = min(5, self.preview_car + 1)
         elif self.buttons['select_car'].handle_event(event):
             # Only now set the selected car
             self.selected_car = self.preview_car
             self.show_options = False
         
-        # Handle arrow keys
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT:
-                self.preview_car = max(3, self.preview_car - 1)
-            elif event.key == pygame.K_RIGHT:
-                self.preview_car = min(5, self.preview_car + 1)
+        # # Handle arrow keys
+        # elif event.type == pygame.KEYDOWN:
+        #     if event.key == pygame.K_LEFT:
+        #         self.preview_car = max(3, self.preview_car - 1)
+        #     elif event.key == pygame.K_RIGHT:
+        #         self.preview_car = min(5, self.preview_car + 1)
 
     def run(self):
         """Run the main menu"""
