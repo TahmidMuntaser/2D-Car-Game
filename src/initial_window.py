@@ -346,7 +346,7 @@ class InitialWindow:
             self.preview_car = max(3, self.preview_car - 1)
         elif self.buttons['next_car'].handle_event(event) or (event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT):
             self.preview_car = min(5, self.preview_car + 1)
-        elif self.buttons['select_car'].handle_event(event):
+        elif self.buttons['select_car'].handle_event(event) or (event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN):
             # Only now set the selected car
             self.selected_car = self.preview_car
             self.show_options = False
