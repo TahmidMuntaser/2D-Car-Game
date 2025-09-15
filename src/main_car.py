@@ -72,19 +72,19 @@ class MainCar:
             self.fallback_color = (255, 0, 0)  # Red color as fallback for debugging
     
     # @staticmethod          check later
-    def get_default_car_height():
-        """Get default car height for initial positioning"""
-        screen_width = pygame.display.get_surface().get_width() if pygame.display.get_surface() else WIDTH
-        road_width = screen_width - (2 * int(screen_width * 0.1))
-        #car_width and car_height
-        car_width = max(60, min(int(road_width * 0.25), 200))
-        return int(car_width * 1.3)
+    # def get_default_car_height():
+    #     """Get default car height for initial positioning"""
+    #     screen_width = pygame.display.get_surface().get_width() if pygame.display.get_surface() else WIDTH
+    #     road_width = screen_width - (2 * int(screen_width * 0.1))
+    #     #car_width and car_height
+    #     car_width = max(60, min(int(road_width * 0.25), 200))
+    #     return int(car_width * 1.3)
 
-    # @staticmethod          check later
-    def get_default_car_width():
-        screen_width = pygame.display.get_surface().get_width() if pygame.display.get_surface() else WIDTH
-        road_width = screen_width - (2 * int(screen_width * 0.1))
-        return max(60, min(int(road_width * 0.25), 200))
+    # # @staticmethod          check later
+    # def get_default_car_width():
+    #     screen_width = pygame.display.get_surface().get_width() if pygame.display.get_surface() else WIDTH
+    #     road_width = screen_width - (2 * int(screen_width * 0.1))
+    #     return max(60, min(int(road_width * 0.25), 200))
 
     def move_left(self):
         """Move car left with road boundary checking"""
@@ -228,6 +228,9 @@ class MainCar:
             "car_number": self.car_number,
             "speed": self.speed
         }
+        
+        
+    
 
 
 # def test_main_car():

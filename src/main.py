@@ -10,7 +10,7 @@ from collision import check_collision
 
 
 def start_game(selected_car=3):
-    # Get the actual current screen size (which might have been resized during game over)
+    # Get the actual current screen size 
     current_surface = pygame.display.get_surface()
     current_width = current_surface.get_width() if current_surface else WIDTH
     current_height = current_surface.get_height() if current_surface else HEIGHT
@@ -30,12 +30,14 @@ def start_game(selected_car=3):
     
     # Set the car to the correct position
     car.set_position(car_start_x, car_start_y)
-    
-    enemy_car = EnemyCar(current_width, current_height)
+    NUM_ENEMY_CARS = 1
+    # enemy_car = EnemyCar(current_width, current_height)
+    enemy_cars = [EnemyCar(current_width, current_height) for _ in range(NUM_ENEMY_CARS)]
     clock = pygame.time.Clock()
     score = Score()
 
     running = True
+    paused = False
     while running:
         clock.tick(FPS)
 
@@ -54,14 +56,24 @@ def start_game(selected_car=3):
                 car_start_y = current_height - car.height - 10
             elif i.type == pygame.KEYDOWN:
                 # Change car model with number keys
-                if i.key == pygame.K_1:
-                    car.change_car(3)
-                elif i.key == pygame.K_2:
-                    car.change_car(4)
-                elif i.key == pygame.K_3:
-                    car.change_car(5)
-                elif i.key == pygame.K_ESCAPE:
+                # if i.key == pygame.K_1:
+                #     car.change_car(3)
+                # elif i.key == pygame.K_2:
+                #     car.change_car(4)
+                # elif i.key == pygame.K_3:
+                #     car.change_car(5)
+                if i.key == pygame.K_ESCAPE:
                     return True  # Return to main menu
+                elif i.key == pygame.K_SPACE:  
+                    paused = not paused
+                    
+        if paused:
+            # Display paused message
+            font = pygame.font.Font(None, 72)
+            pause_text = font.render("PAUSED", True, (255, 0, 0))
+            screen.blit(pause_text, (screen.get_width()//2 - pause_text.get_width()//2, screen.get_height()//2 - pause_text.get_height()//2))
+            pygame.display.flip()
+            continue
 
         # Handle car input
         keys = pygame.key.get_pressed()
@@ -71,13 +83,15 @@ def start_game(selected_car=3):
         # Score update
         score.update()
         
+        # score.get_score()
         
         # Draw everything
         road.move()
         road.draw(screen)
         car.draw(screen)
-        enemy_car.move(score.get_score())
-        enemy_car.draw(screen)
+        for enemy_car in enemy_cars:
+            enemy_car.move(score.get_score())
+            enemy_car.draw(screen)
         
         # Draw score text
         font = pygame.font.Font(None, 48)
@@ -91,15 +105,16 @@ def start_game(selected_car=3):
         screen.blit(score_text, (30, 20))
         
         # Collision check 
-        if check_collision(screen, car, enemy_car, draw_debug=True):
-            game_over_result = show_game_over(screen, road, car, enemy_car, car_start_x, car_start_y, score.get_score())
+        for enemy_car in enemy_cars:
+            if check_collision(screen, car, enemy_car, draw_debug=True):
+                game_over_result = show_game_over(screen, road, car, enemy_car, car_start_x, car_start_y, score.get_score())
 
-            if game_over_result == "retry":
-                score.reset()
-            elif game_over_result == "menu":
-                return True
-            else:
-                return False
+                if game_over_result == "retry":
+                    score.reset()
+                elif game_over_result == "menu":
+                    return True
+                else:
+                    return False
 
         pygame.display.flip()
 

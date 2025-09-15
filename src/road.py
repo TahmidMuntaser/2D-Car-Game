@@ -11,7 +11,7 @@ class Road:
         self.set_size(width, height)
         self.y1 = 0
         self.y2 = -height
-        self.speed = 5 # 5 ppf
+        self.speed = 7 # 7 ppf
         
     def set_size(self, width , height):
         self.width  = width
@@ -21,7 +21,7 @@ class Road:
         self.y2 = -height
     
     def get_road_borders(self):
-        """Calculate responsive road borders based on screen width"""
+        # Calculate responsive road borders based on screen width
         border_percentage = 0.1  # 10% of screen width for borders
         border_size = int(self.width * border_percentage)
         # Ensure minimum and maximum border sizes

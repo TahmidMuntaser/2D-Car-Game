@@ -8,7 +8,7 @@ class EnemyCar:
         self.screen_width = screen_width
         self.screen_height = screen_height
         self.car_number = car_number
-        self.speed = random.randint(2, 5) 
+        # self.speed = random.randint(2, 5) 
         # self.width = 60   
         # self.height = 100
         self.update_road_boundaries()
@@ -69,9 +69,9 @@ class EnemyCar:
     def update_speed(self, score):
        
         if score < 10:
-            self.speed = random.randint(4, 6)
+            self.speed = random.randint(4,6)
         elif score < 20:
-            self.speed = random.randint(5, 7)
+            self.speed = random.randint(6, 7)
         elif score < 35:
             self.speed = random.randint(7, 9)
         else:
