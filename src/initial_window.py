@@ -8,7 +8,7 @@ class Button:
     Position and size are given as percentages (0.0 - 1.0) of the window size.
     """
     def __init__(self, label, x_perc, y_perc, w_perc, h_perc, 
-                 color, text_color, hover_color, font_size=36):
+                 color, text_color, hover_color, font_size):
         self.label = label
         self.x_perc, self.y_perc = x_perc, y_perc
         self.w_perc, self.h_perc = w_perc, h_perc
@@ -23,7 +23,7 @@ class Button:
         w, h = int(min(250,self.w_perc * win_width)), int(min(50,self.h_perc * win_height))
         x, y = int(self.x_perc * win_width - w // 2), int(self.y_perc * win_height - h // 2)
         self.rect = pygame.Rect(x, y, w, h)
-        self.font = pygame.font.Font(None, max(20, int(self.h_perc * win_height * 0.5)))
+        self.font = pygame.font.Font(None, self.font_size)
 
     def draw(self, screen):
         """Draw the button on screen."""
@@ -53,14 +53,14 @@ class CarPreview:
         try:
             current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             car_size_x = min(120,pygame.display.get_surface().get_width() * 0.15)
-            car_size_y = min(150, pygame.display.get_surface().get_width() * 0.15 * 1.25)
+            car_size_y = min(150, pygame.display.get_surface().get_width() * 0.15 * 1.3)
             for car_num in range(3, 6):  # Cars 3, 4, 5
                 assets_path = os.path.join(current_dir, "assets", f"car{car_num}.png")
                 if os.path.exists(assets_path):
                     original = pygame.image.load(assets_path).convert_alpha()
                     self.car_images[car_num] = pygame.transform.scale(original, (car_size_x, car_size_y))
         except Exception as e:
-            print(f"Error loading car images: {e}")
+            # print(f"Error loading car images: {e}")
             colors = {3: (255, 0, 0), 4: (0, 255, 0), 5: (0, 0, 255)}
             for car_num in range(3, 6):
                 surface = pygame.Surface((80, 100))
@@ -76,11 +76,6 @@ class CarPreview:
             # Always scale at draw time for correct size
             img = pygame.transform.smoothscale(self.car_images[self.current_car], (car_size_x, car_size_y))
             screen.blit(img, (win_w // 2 - car_size_x // 2, win_h // 2-car_size_y))
-        # # Draw car label below the car
-        # font_size = max(24, min(40, int(win_h * 0.04)))
-        # font = pygame.font.Font(None, font_size)
-        # text = font.render(f"Car {self.current_car}", True, (255, 255, 255))
-        # screen.blit(text, text.get_rect(center=(win_w // 2, win_h // 2 + car_size_y // 2 + font_size)))
 
 class InitialWindow:
     """Main menu window for the 2D Car Game"""
@@ -122,23 +117,23 @@ class InitialWindow:
         self.buttons = {}
         # Main menu buttons (centered, stacked vertically)
         menu_specs = [
-            ("New Game",      0.5, 0.36, 0.3, 0.09, self.button_color, self.button_hover_color),
-            ("Change Car",    0.5, 0.47, 0.3, 0.09, self.button_color, self.button_hover_color),
-            ("Highest Score", 0.5, 0.58, 0.3, 0.09, self.button_color, self.button_hover_color),
-            ("Instructions",  0.5, 0.69, 0.3, 0.09, self.button_color, self.button_hover_color),
-            ("Quit",          0.5, 0.80, 0.3, 0.09, (180,70,70), (200,90,90)),
+            ("New Game",      0.5, 0.36, 0.3, 0.09, self.button_color, self.button_hover_color,36),
+            ("Change Car",    0.5, 0.47, 0.3, 0.09, self.button_color, self.button_hover_color,36),
+            ("Highest Score", 0.5, 0.58, 0.3, 0.09, self.button_color, self.button_hover_color,36),
+            ("Instructions",  0.5, 0.69, 0.3, 0.09, self.button_color, self.button_hover_color,36),
+            ("Quit",          0.5, 0.80, 0.3, 0.09, (180,70,70), (200,100,100),28),
         ]
-        for name, x, y, w, h, c, hc in menu_specs:
+        for name, x, y, w, h, c, hc, f in menu_specs:
             self.buttons[name.lower().replace(" ", "_")] = Button(
-                name, x, y, w, h, c, self.text_color, hc
+                name, x, y, w, h, c, self.text_color, hc, f
             )
         # Car selection buttons
-        self.buttons['prev_car'] = Button("Previous", 0.32, 0.60, 0.18, 0.07, self.button_color, self.text_color, self.button_hover_color)
-        self.buttons['next_car'] = Button("Next", 0.68, 0.60, 0.18, 0.07, self.button_color, self.text_color, self.button_hover_color)
-        self.buttons['select_car'] = Button("Select the Car", 0.5, 0.75, 0.28, 0.08, (70,180,70), self.text_color, (90,200,90))
+        self.buttons['prev_car'] = Button("Previous", 0.32, 0.60, 0.18, 0.07, self.button_color, self.text_color, self.button_hover_color,36)
+        self.buttons['next_car'] = Button("Next", 0.68, 0.60, 0.18, 0.07, self.button_color, self.text_color, self.button_hover_color,36)
+        self.buttons['select_car'] = Button("Select the Car", 0.5, 0.75, 0.28, 0.08, (70,180,70), self.text_color, (90,200,90),36)
         # Reset high score button (initially hidden)
         self.buttons['reset_highscore'] = Button(
-            "Reset", 0.5, 0.65, 0.22, 0.08, (180,70,70), self.text_color, (200,90,90)
+            "Reset", 0.5, 0.65, 0.22, 0.08, (180,70,70), self.text_color, (200,90,90),42
         )
         self.buttons['reset_highscore'].rect.y = self.window_height  # Position off-screen initially
         # Update all button rects for current window size
@@ -412,13 +407,6 @@ class InitialWindow:
             # Only now set the selected car
             self.selected_car = self.preview_car
             self.show_options = False
-        
-        # # Handle arrow keys
-        # elif event.type == pygame.KEYDOWN:
-        #     if event.key == pygame.K_LEFT:
-        #         self.preview_car = max(3, self.preview_car - 1)
-        #     elif event.key == pygame.K_RIGHT:
-        #         self.preview_car = min(5, self.preview_car + 1)
 
     def handle_highest_score_events(self, event):
         if self.buttons['reset_highscore'].handle_event(event):
