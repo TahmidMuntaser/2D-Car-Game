@@ -31,7 +31,6 @@ def start_game(selected_car=3):
     # Set the car to the correct position
     car.set_position(car_start_x, car_start_y)
     NUM_ENEMY_CARS = 1
-    # enemy_car = EnemyCar(current_width, current_height)
     enemy_cars = [EnemyCar(current_width, current_height) for _ in range(NUM_ENEMY_CARS)]
     clock = pygame.time.Clock()
     score = Score()
@@ -50,7 +49,8 @@ def start_game(selected_car=3):
                 screen = pygame.display.set_mode((current_width, current_height), pygame.RESIZABLE)
                 road.set_size(current_width, current_height)
                 car.update_screen_size(current_width, current_height)  # Update car boundaries
-                enemy_car.update_screen_size(current_width, current_height)
+                for enemy_car in enemy_cars:
+                    enemy_car.update_screen_size(current_width, current_height)
                 # Update car start position for when game over occurs
                 car_start_x = (current_width - car.width) // 2
                 car_start_y = current_height - car.height
@@ -82,8 +82,6 @@ def start_game(selected_car=3):
         
         # Score update
         score.update()
-        
-        # score.get_score()
         
         # Draw everything
         road.move()
