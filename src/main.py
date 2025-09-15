@@ -55,14 +55,7 @@ def start_game(selected_car=3):
                 car_start_x = (current_width - car.width) // 2
                 car_start_y = current_height - car.height
             elif i.type == pygame.KEYDOWN:
-                # Change car model with number keys
-                if i.key == pygame.K_1:
-                    car.change_car(3)
-                elif i.key == pygame.K_2:
-                    car.change_car(4)
-                elif i.key == pygame.K_3:
-                    car.change_car(5)
-                elif i.key == pygame.K_ESCAPE:
+                if i.key == pygame.K_ESCAPE:
                     return True  # Return to main menu
                 elif i.key == pygame.K_SPACE:  
                     paused = not paused
